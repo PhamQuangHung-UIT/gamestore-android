@@ -14,6 +14,8 @@ public class LandingActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_landing);
+
         var getStartedButton = findViewById(R.id.get_started_button);
 
         getStartedButton.setOnClickListener(view -> {

@@ -9,7 +9,6 @@ import android.widget.EditText;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.viewmodel.internal.ViewModelProviders;
 
 import com.uit.gamestore.R;
 import com.uit.gamestore.domain.model.Result;
@@ -19,6 +18,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
 
         var viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
@@ -29,9 +29,6 @@ public class LoginActivity extends AppCompatActivity {
         Button loginButton = findViewById(R.id.button_login);
 
         loginButton.setOnClickListener(view -> viewModel.login());
-
-        setContentView(R.layout.activity_login);
-
     }
 
     private void onLoginComplete(Result<User> userResult) {
