@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name" translatable="false">Game Store</string>
+    <string name="title_store">Store</string>
+    <string name="title_saved_games">Saved Games</string>
+    <string name="title_settings">Settings</string>
+    <string name="label_newest_category">Newest</string>
+    <string name="button_install">Install</string>
+    <string name="label_christmas_special">Christmas Special</string>
+    <string name="label_all_game">All games</string>
+    <string name="landing_title">Welcome to</string>
+    <string name="get_started">Get Started</string>
+    <string name="label_email">Email</string>
+    <string name="label_password">Password</string>
+    <string name="label_login_to">Login to</string>
+    <string name="button_login">Login</string>
+</resources>

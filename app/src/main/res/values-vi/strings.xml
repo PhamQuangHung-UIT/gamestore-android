@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_store">Cửa hàng</string>
+    <string name="title_saved_games">Trò chơi đã lưu</string>
+    <string name="title_settings">Cài đặt</string>
+    <string name="label_newest_category">Mới nhất</string>
+    <string name="button_install">Cài đặt</string>
+    <string name="label_christmas_special">Ưu đãi giáng sinh</string>
+    <string name="label_all_game">Tất cả trò chơi</string>
+    <string name="landing_title">Chào mừng đến với</string>
+    <string name="get_started">Bắt Đầu</string>
+    <string name="label_email">Email</string>
+    <string name="label_password">Password</string>
+    <string name="label_login_to">Đăng nhập</string>
+    <string name="button_login">Đăng nhập</string>
+</resources>
