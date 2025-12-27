@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_store">Cửa hàng</string>
-    <string name="title_saved_games">Trò chơi đã lưu</string>
+    <string name="title_your_games">Trò chơi của bạn</string>
     <string name="title_settings">Cài đặt</string>
     <string name="label_newest_category">Mới nhất</string>
     <string name="button_install">Cài đặt</string>

@@ -21,6 +21,7 @@ public class LandingActivity extends AppCompatActivity {
         getStartedButton.setOnClickListener(view -> {
             var intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+            finish();
         });
     }
 }

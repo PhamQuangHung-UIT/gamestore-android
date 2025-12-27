@@ -53,7 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="80dp"
         android:text="@string/label_email"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -126,15 +126,15 @@
         app:layout_constraintTop_toBottomOf="@+id/label_password"
         tools:text="12345678" />
 
-    <ImageButton
-        android:id="@+id/imageButton"
+    <CheckBox
+        android:id="@+id/button_passwordToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:background="@color/transparent"
+        android:button="@drawable/ic_visibility_24dp"
+        android:buttonTint="#B1B1B1"
         android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/editText_password"
         app:layout_constraintEnd_toEndOf="@+id/editText_password"
-        app:layout_constraintTop_toTopOf="@+id/editText_password"
-        app:srcCompat="@drawable/ic_bookmark_24dp" />
+        app:layout_constraintTop_toTopOf="@+id/editText_password" />
 </androidx.constraintlayout.widget.ConstraintLayout>

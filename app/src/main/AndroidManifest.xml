@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".GameStoreApp"
         android:allowBackup="true"
@@ -13,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GameStore">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.landing.LandingActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
@@ -22,6 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.login.LoginActivity"/>
+        <activity android:name=".MainActivity" android:exported="true" />
     </application>
 
 </manifest>

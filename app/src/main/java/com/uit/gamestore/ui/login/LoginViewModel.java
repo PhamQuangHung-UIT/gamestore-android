@@ -35,12 +35,12 @@ public class LoginViewModel extends ViewModel {
         return loginResult;
     }
 
-    public LiveData<String> getEmail() {
-        return email;
+    public void setEmail(String newEmail) {
+        email.setValue(newEmail);
     }
 
-    public LiveData<String> getPassword() {
-        return password;
+    public void setPassword(String newPassword) {
+        password.setValue(newPassword);
     }
 
     public LiveData<Boolean> getPasswordVisible() {

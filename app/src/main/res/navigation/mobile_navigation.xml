@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_store">
 
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_store"
         android:name="com.uit.gamestore.ui.store.StoreFragment"
         android:label="@string/title_store"
         tools:layout="@layout/fragment_store" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.uit.gamestore.ui.settings.SettingsFragment"
-        android:label="@string/title_saved_games"
+        android:id="@+id/navigation_your_games"
+        android:name="com.uit.gamestore.ui.your_games.YourGamesFragment"
+        android:label="@string/title_your_games"
         tools:layout="@layout/fragment_your_games" />
 
     <fragment

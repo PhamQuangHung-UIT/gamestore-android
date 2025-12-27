@@ -1,8 +1,6 @@
 package com.uit.gamestore.domain.model;
 
 public abstract class Result<T> {
-
-
     public static class Success<T> extends Result<T> {
         private final T value;
 

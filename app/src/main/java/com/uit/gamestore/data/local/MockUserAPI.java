@@ -8,10 +8,10 @@ import com.uit.gamestore.domain.model.User;
 public class MockUserAPI {
 
     public Result<User> login(@NonNull String email, @NonNull String password) {
-        if (email.equals("example@gmail.com") && password.equals("password")) {
-            return new Result.Success<>(new User("123", "example@gmail.com", "John Doe", null, null));
+        if (email.equals("phamhung7102003@gmail.com") && password.equals("12345678")) {
+            return new Result.Success<>(new User("123", "phamhung7102003@gmail.com", "John Doe", null, null));
         } else {
-            return new Result.Error("Invalid email or password");
+            return new Result.Error<>("Invalid email or password");
         }
     }
 }

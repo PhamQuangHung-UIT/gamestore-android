@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Game Store</string>
     <string name="title_store">Store</string>
-    <string name="title_saved_games">Saved Games</string>
+    <string name="title_your_games">Your Games</string>
     <string name="title_settings">Settings</string>
     <string name="label_newest_category">Newest</string>
     <string name="button_install">Install</string>
