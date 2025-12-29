@@ -6,7 +6,7 @@
     <string name="label_newest_category">Newest</string>
     <string name="button_install">Install</string>
     <string name="label_christmas_special">On Sale</string>
-    <string name="label_all_game">All games</string>
+    <string name="label_all_game">All Games</string>
     <string name="landing_title">Welcome to</string>
     <string name="get_started">Get Started</string>
     <string name="label_email">Email</string>
@@ -14,4 +14,44 @@
     <string name="label_login_to">Login to</string>
     <string name="button_login">Login</string>
     <string name="loading">Loading…</string>
+
+    <!-- Store -->
+    <string name="no_sale_games">No games on sale right now</string>
+    <string name="no_games_available">No games available</string>
+    <string name="error_loading_games">Failed to load games</string>
+    <string name="retry">Retry</string>
+    <string name="free">Free</string>
+
+    <!-- Game Detail -->
+    <string name="game_detail">Game Details</string>
+    <string name="description">Description</string>
+    <string name="reviews">Reviews</string>
+    <string name="no_reviews">No reviews yet</string>
+    <string name="publisher">Publisher</string>
+    <string name="genre">Genre</string>
+    <string name="release_date">Release Date</string>
+    <string name="version">Version</string>
+    <string name="buy_now">Buy Now</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="rating_format">%.1f ★</string>
+    <string name="review_count_format">(%d reviews)</string>
+    <string name="price_format">$%.2f</string>
+    <string name="discount_format">-%d%%</string>
+    <string name="original_price">Original: %s</string>
+
+    <!-- Library -->
+    <string name="your_library">Your Library</string>
+    <string name="no_games_in_library">You haven\'t purchased any games yet</string>
+    <string name="browse_store">Browse Store</string>
+
+    <!-- Profile -->
+    <string name="profile">Profile</string>
+    <string name="balance">Balance</string>
+    <string name="logout">Logout</string>
+    <string name="login_required">Please login to continue</string>
+
+    <!-- General -->
+    <string name="unknown">Unknown</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="no_internet">No internet connection</string>
 </resources>

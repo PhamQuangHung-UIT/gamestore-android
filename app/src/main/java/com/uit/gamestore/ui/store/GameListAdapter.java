@@ -104,6 +104,8 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         protected final ImageView imageViewGameIcon;
         protected final ImageView imageViewMinimumAge;
         protected final Button buttonPurchase;
+        protected final TextView textViewGenre;
+        protected final TextView textViewRating;
 
         public GameViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -111,14 +113,16 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
             imageViewGameIcon = itemView.findViewById(R.id.imageView_gameIcon);
             imageViewMinimumAge = itemView.findViewById(R.id.imageView_ageRating);
             buttonPurchase = itemView.findViewById(R.id.button_installGame);
+            textViewGenre = itemView.findViewById(R.id.textView_genre);
+            textViewRating = itemView.findViewById(R.id.textView_rating);
         }
 
         public void bind(@NonNull GameDto game, @NonNull Context context) {
-            // Set game name with null safety
+            // Set game name
             String name = game.getName();
             labelGameName.setText(name != null ? name : "Unknown Game");
 
-            // Load image with Glide
+            // Load image
             String imageUrl = game.getImageUrl();
             if (imageUrl != null && !imageUrl.isEmpty()) {
                 Glide.with(context)
@@ -130,7 +134,29 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
                 imageViewGameIcon.setImageResource(R.drawable.ic_videogame_asset_black_24dp);
             }
 
-            // Hide age rating since ERD doesn't have this field
+            // Genre
+            if (textViewGenre != null) {
+                String genre = game.getGenre();
+                if (genre != null && !genre.isEmpty()) {
+                    textViewGenre.setText(genre);
+                    textViewGenre.setVisibility(View.VISIBLE);
+                } else {
+                    textViewGenre.setVisibility(View.GONE);
+                }
+            }
+
+            // Rating
+            if (textViewRating != null) {
+                Double rating = game.getAverageRating();
+                if (rating != null && rating > 0) {
+                    textViewRating.setText(String.format(Locale.getDefault(), "%.1f ★", rating));
+                    textViewRating.setVisibility(View.VISIBLE);
+                } else {
+                    textViewRating.setVisibility(View.GONE);
+                }
+            }
+
+            // Hide age rating
             if (imageViewMinimumAge != null) {
                 imageViewMinimumAge.setVisibility(View.GONE);
             }
@@ -138,7 +164,7 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
             bindPrice(game);
         }
 
-        private void bindPrice(@NonNull GameDto game) {
+        protected void bindPrice(@NonNull GameDto game) {
             if (buttonPurchase == null) return;
 
             double effectivePrice = game.getEffectivePrice();
