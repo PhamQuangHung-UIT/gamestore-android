@@ -90,7 +90,7 @@
                         tools:visibility="visible" />
 
                     <ImageView
-                        android:id="@+id/imageView_ageRating"
+                        android:id="@+id/imageView_ageRating_small"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginStart="8dp"

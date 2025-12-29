@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.uit.gamestore.data.remote.RetrofitClient;
 import com.uit.gamestore.data.remote.dto.GameDto;
+import com.uit.gamestore.data.remote.dto.PaginatedGamesResponse;
 
 import java.util.List;
 
@@ -18,79 +19,92 @@ public class GameRepository {
         void onError(String message);
     }
 
+    public interface PaginatedGamesCallback {
+        void onSuccess(List<GameDto> games, int total, int page, int totalPages);
+        void onError(String message);
+    }
+
     public interface GameDetailCallback {
         void onSuccess(GameDto game);
         void onError(String message);
     }
 
-    public void getAllGames(GamesCallback callback) {
-        RetrofitClient.getGameApi().getAllGames().enqueue(new Callback<>() {
+    public void getGamesPaginated(String search, String genre, Boolean onSale, int page, int limit, PaginatedGamesCallback callback) {
+        RetrofitClient.getGameApi().getGamesPaginated(search, genre, null, onSale, page, limit).enqueue(new Callback<>() {
             @Override
-            public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
+            public void onResponse(@NonNull Call<PaginatedGamesResponse> call, @NonNull Response<PaginatedGamesResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    PaginatedGamesResponse body = response.body();
+                    callback.onSuccess(
+                            body.getData(),
+                            body.getMeta().getTotal(),
+                            body.getMeta().getPage(),
+                            body.getMeta().getTotalPages()
+                    );
                 } else {
                     callback.onError("Failed to load games");
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<GameDto>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<PaginatedGamesResponse> call, @NonNull Throwable t) {
                 callback.onError("Network error: " + t.getMessage());
             }
         });
     }
 
-    public void searchGames(String search, String genre, Boolean hasDiscount, GamesCallback callback) {
-        RetrofitClient.getGameApi().getGames(search, genre, null, "Released", hasDiscount).enqueue(new Callback<>() {
+    public void getAllGames(GamesCallback callback) {
+        getGamesPaginated(null, null, null, 1, 50, new PaginatedGamesCallback() {
             @Override
-            public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to search games");
-                }
+            public void onSuccess(List<GameDto> games, int total, int page, int totalPages) {
+                callback.onSuccess(games);
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<GameDto>> call, @NonNull Throwable t) {
-                callback.onError("Network error: " + t.getMessage());
+            public void onError(String message) {
+                callback.onError(message);
+            }
+        });
+    }
+
+    public void searchGames(String search, String genre, Boolean onSale, GamesCallback callback) {
+        getGamesPaginated(search, genre, onSale, 1, 50, new PaginatedGamesCallback() {
+            @Override
+            public void onSuccess(List<GameDto> games, int total, int page, int totalPages) {
+                callback.onSuccess(games);
+            }
+
+            @Override
+            public void onError(String message) {
+                callback.onError(message);
             }
         });
     }
 
     public void getGamesByGenre(String genre, GamesCallback callback) {
-        RetrofitClient.getGameApi().getGames(null, genre, null, "Released", null).enqueue(new Callback<>() {
+        getGamesPaginated(null, genre, null, 1, 50, new PaginatedGamesCallback() {
             @Override
-            public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to load games");
-                }
+            public void onSuccess(List<GameDto> games, int total, int page, int totalPages) {
+                callback.onSuccess(games);
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<GameDto>> call, @NonNull Throwable t) {
-                callback.onError("Network error: " + t.getMessage());
+            public void onError(String message) {
+                callback.onError(message);
             }
         });
     }
 
     public void getDiscountedGames(GamesCallback callback) {
-        RetrofitClient.getGameApi().getGames(null, null, null, "Released", true).enqueue(new Callback<>() {
+        getGamesPaginated(null, null, true, 1, 50, new PaginatedGamesCallback() {
             @Override
-            public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("Failed to load discounted games");
-                }
+            public void onSuccess(List<GameDto> games, int total, int page, int totalPages) {
+                callback.onSuccess(games);
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<GameDto>> call, @NonNull Throwable t) {
-                callback.onError("Network error: " + t.getMessage());
+            public void onError(String message) {
+                callback.onError(message);
             }
         });
     }

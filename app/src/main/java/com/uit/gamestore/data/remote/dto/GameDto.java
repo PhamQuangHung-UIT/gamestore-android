@@ -36,7 +36,7 @@ public class GameDto {
     @SerializedName("releaseStatus")
     private String releaseStatus;
 
-    @SerializedName("publisherId")
+    @SerializedName("publisher")
     private PublisherDto publisher;
 
     @SerializedName("promotion")
