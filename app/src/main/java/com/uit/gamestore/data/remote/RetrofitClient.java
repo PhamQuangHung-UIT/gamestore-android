@@ -17,21 +17,25 @@ public final class RetrofitClient {
     // For physical device: use your computer's IP address
     private static final String BASE_URL = "http://10.0.2.2:3000/";
 
-    private static volatile Retrofit retrofit;
-    private static volatile OkHttpClient okHttpClient;
+    private static volatile Retrofit publicRetrofit;
+    private static volatile Retrofit authenticatedRetrofit;
+    private static volatile OkHttpClient publicClient;
+    private static volatile OkHttpClient authenticatedClient;
 
     private RetrofitClient() {}
 
-    private static OkHttpClient getOkHttpClient() {
-        if (okHttpClient == null) {
-            synchronized (RetrofitClient.class) {
-                if (okHttpClient == null) {
-                    HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-                    loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+    private static HttpLoggingInterceptor createLoggingInterceptor() {
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        return loggingInterceptor;
+    }
 
-                    okHttpClient = new OkHttpClient.Builder()
-                            .addInterceptor(new AuthInterceptor())
-                            .addInterceptor(loggingInterceptor)
+    private static OkHttpClient getPublicClient() {
+        if (publicClient == null) {
+            synchronized (RetrofitClient.class) {
+                if (publicClient == null) {
+                    publicClient = new OkHttpClient.Builder()
+                            .addInterceptor(createLoggingInterceptor())
                             .connectTimeout(30, TimeUnit.SECONDS)
                             .readTimeout(30, TimeUnit.SECONDS)
                             .writeTimeout(30, TimeUnit.SECONDS)
@@ -39,37 +43,90 @@ public final class RetrofitClient {
                 }
             }
         }
-        return okHttpClient;
+        return publicClient;
     }
 
-    public static Retrofit getInstance() {
-        if (retrofit == null) {
+    private static OkHttpClient getAuthenticatedClient() {
+        if (authenticatedClient == null) {
             synchronized (RetrofitClient.class) {
-                if (retrofit == null) {
-                    Gson gson = new GsonBuilder()
-                            .setLenient()
-                            .create();
-
-                    retrofit = new Retrofit.Builder()
-                            .baseUrl(BASE_URL)
-                            .client(getOkHttpClient())
-                            .addConverterFactory(GsonConverterFactory.create(gson))
+                if (authenticatedClient == null) {
+                    authenticatedClient = new OkHttpClient.Builder()
+                            .addInterceptor(new AuthInterceptor())
+                            .addInterceptor(createLoggingInterceptor())
+                            .connectTimeout(30, TimeUnit.SECONDS)
+                            .readTimeout(30, TimeUnit.SECONDS)
+                            .writeTimeout(30, TimeUnit.SECONDS)
                             .build();
                 }
             }
         }
-        return retrofit;
+        return authenticatedClient;
     }
 
+    private static Gson createGson() {
+        return new GsonBuilder().setLenient().create();
+    }
+
+    /**
+     * Public Retrofit instance - NO authentication header
+     * Use for: games list, game details, reviews (read-only)
+     */
+    public static Retrofit getPublicInstance() {
+        if (publicRetrofit == null) {
+            synchronized (RetrofitClient.class) {
+                if (publicRetrofit == null) {
+                    publicRetrofit = new Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .client(getPublicClient())
+                            .addConverterFactory(GsonConverterFactory.create(createGson()))
+                            .build();
+                }
+            }
+        }
+        return publicRetrofit;
+    }
+
+    /**
+     * Authenticated Retrofit instance - includes JWT token
+     * Use for: customer profile, orders, library, protected endpoints
+     */
+    public static Retrofit getAuthenticatedInstance() {
+        if (authenticatedRetrofit == null) {
+            synchronized (RetrofitClient.class) {
+                if (authenticatedRetrofit == null) {
+                    authenticatedRetrofit = new Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .client(getAuthenticatedClient())
+                            .addConverterFactory(GsonConverterFactory.create(createGson()))
+                            .build();
+                }
+            }
+        }
+        return authenticatedRetrofit;
+    }
+
+    // ============ PUBLIC APIs (No login required) ============
+
+    /**
+     * Auth API - for login/register (public)
+     */
     public static AuthApi getAuthApi() {
-        return getInstance().create(AuthApi.class);
+        return getPublicInstance().create(AuthApi.class);
     }
 
+    /**
+     * Game API - for browsing games (public)
+     */
     public static GameApi getGameApi() {
-        return getInstance().create(GameApi.class);
+        return getPublicInstance().create(GameApi.class);
     }
 
+    // ============ PROTECTED APIs (Login required) ============
+
+    /**
+     * Customer API - for profile, orders, library (requires login)
+     */
     public static CustomerApi getCustomerApi() {
-        return getInstance().create(CustomerApi.class);
+        return getAuthenticatedInstance().create(CustomerApi.class);
     }
 }
