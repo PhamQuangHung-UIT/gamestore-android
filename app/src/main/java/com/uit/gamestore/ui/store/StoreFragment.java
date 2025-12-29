@@ -102,8 +102,8 @@ public class StoreFragment extends Fragment {
     private void setupSwipeRefresh() {
         swipeRefreshLayout.setOnRefreshListener(this::loadData);
         swipeRefreshLayout.setColorSchemeResources(
-                R.color.design_default_color_primary,
-                R.color.design_default_color_secondary
+                com.google.android.material.R.color.design_default_color_primary,
+                com.google.android.material.R.color.design_default_color_secondary
         );
     }
 
