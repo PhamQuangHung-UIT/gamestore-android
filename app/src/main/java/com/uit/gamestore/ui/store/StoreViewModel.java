@@ -4,44 +4,81 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.repository.GameRepository;
-import com.uit.gamestore.domain.model.Game;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class StoreViewModel extends ViewModel {
 
-    private final MutableLiveData<List<Game>> gameLists = new MutableLiveData<>();
+    private final MutableLiveData<List<GameDto>> allGames = new MutableLiveData<>();
+    private final MutableLiveData<List<GameDto>> saleGames = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> error = new MutableLiveData<>();
 
-    private final MutableLiveData<List<CategorySection>> categorySections = new MutableLiveData<>(new ArrayList<>());
+    private final GameRepository gameRepository = new GameRepository();
 
-    private final GameRepository m_gameRepository = new GameRepository();
+    public void loadAllGames() {
+        isLoading.setValue(true);
+        gameRepository.getAllGames(new GameRepository.GamesCallback() {
+            @Override
+            public void onSuccess(List<GameDto> games) {
+                allGames.postValue(games);
+                isLoading.postValue(false);
+            }
 
-
-
-    public StoreViewModel() {
+            @Override
+            public void onError(String message) {
+                error.postValue(message);
+                isLoading.postValue(false);
+            }
+        });
     }
 
+    public void loadSaleGames() {
+        gameRepository.searchGames(null, null, true, new GameRepository.GamesCallback() {
+            @Override
+            public void onSuccess(List<GameDto> games) {
+                saleGames.postValue(games);
+            }
 
-    public void getAllGames() {
-        gameLists.setValue(m_gameRepository.getAllGames());
+            @Override
+            public void onError(String message) {
+                error.postValue(message);
+            }
+        });
     }
 
-    public void getGamesByCategory(String category) {
-        var section = new CategorySection(category, m_gameRepository.getGamesByCategory(category));
-        var newList = new ArrayList<>(Objects.requireNonNull(categorySections.getValue()));
-        newList.add(section);
-        categorySections.setValue(newList);
+    public void searchGames(String query) {
+        isLoading.setValue(true);
+        gameRepository.searchGames(query, null, null, new GameRepository.GamesCallback() {
+            @Override
+            public void onSuccess(List<GameDto> games) {
+                allGames.postValue(games);
+                isLoading.postValue(false);
+            }
+
+            @Override
+            public void onError(String message) {
+                error.postValue(message);
+                isLoading.postValue(false);
+            }
+        });
     }
 
-    public LiveData<List<Game>> getGameLists() {
-        return gameLists;
+    public LiveData<List<GameDto>> getAllGames() {
+        return allGames;
     }
 
-    public LiveData<List<CategorySection>> getCategorySections() {
-        return categorySections;
+    public LiveData<List<GameDto>> getSaleGames() {
+        return saleGames;
+    }
+
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
+    public LiveData<String> getError() {
+        return error;
     }
 }

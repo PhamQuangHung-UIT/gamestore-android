@@ -102,4 +102,9 @@ public class Game {
         Game game = (Game) o;
         return id.equals(game.id);
     }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

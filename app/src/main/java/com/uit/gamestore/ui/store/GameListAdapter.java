@@ -17,140 +17,152 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.uit.gamestore.R;
-import com.uit.gamestore.domain.model.Game;
+import com.uit.gamestore.data.remote.dto.GameDto;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-public class GameListAdapter extends ListAdapter<Game, GameListAdapter.GameViewHolder> {
-    int m_direction;
+public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameViewHolder> {
 
-    private Context m_context;
+    private final int direction;
+    private final Context context;
+    private OnGameClickListener clickListener;
 
-    private static final DiffUtil.ItemCallback<Game> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
+    public interface OnGameClickListener {
+        void onGameClick(GameDto game);
+    }
+
+    private static final DiffUtil.ItemCallback<GameDto> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
-        public boolean areItemsTheSame(@NonNull Game oldItem, @NonNull Game newItem) {
+        public boolean areItemsTheSame(@NonNull GameDto oldItem, @NonNull GameDto newItem) {
             return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Game oldItem, @NonNull Game newItem) {
-            return oldItem.equals(newItem);
+        public boolean areContentsTheSame(@NonNull GameDto oldItem, @NonNull GameDto newItem) {
+            return oldItem.getId().equals(newItem.getId()) &&
+                    oldItem.getTitle().equals(newItem.getTitle()) &&
+                    oldItem.getPrice() == newItem.getPrice();
         }
     };
-    public GameListAdapter(int direction, Context context) {
+
+    public GameListAdapter(int direction, @NonNull Context context) {
         super(DIFF_CALLBACK);
-        m_direction = direction;
-        m_context = context;
+        this.direction = direction;
+        this.context = context;
     }
+
+    public void setOnGameClickListener(OnGameClickListener listener) {
+        this.clickListener = listener;
+    }
+
     @NonNull
     @Override
-    public GameListAdapter.GameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (m_direction == DIRECTION_HORIZONTAL)
-            return new HorizontalGameViewHolder(LayoutInflater.from(m_context).inflate(R.layout.item_game_big, parent, false));
-        else return new VerticalGameViewHolder(LayoutInflater.from(m_context).inflate(R.layout.item_game, parent, false));
+    public GameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        if (direction == DIRECTION_HORIZONTAL) {
+            return new HorizontalGameViewHolder(inflater.inflate(R.layout.item_game_big, parent, false));
+        } else {
+            return new VerticalGameViewHolder(inflater.inflate(R.layout.item_game, parent, false));
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull GameListAdapter.GameViewHolder holder, int position) {
-        var game = getItem(position);
-        holder.getLabel_gameName().setText(game.getName());
-        Glide.with(m_context).load(game.getIconUrl()).into(holder.getImageView_gameIcon());
-        switch (game.getMinimumAgeRating()) {
-            case "iarc-3":
-                holder.getImageView_minimumAge().setImageResource(R.drawable.iarc_3);
-                break;
-            case "iarc-7":
-                holder.getImageView_minimumAge().setImageResource(R.drawable.iarc_7);
-                break;
-            case "iarc-12":
-                holder.getImageView_minimumAge().setImageResource(R.drawable.iarc_12);
-                break;
-            case "iarc-16":
-                holder.getImageView_minimumAge().setImageResource(R.drawable.iarc_16);
-                break;
-            case "iarc-18":
-                holder.getImageView_minimumAge().setImageResource(R.drawable.iarc_18);
-                break;
-            default:
-                holder.getImageView_minimumAge().setVisibility(View.GONE);
-                break;
-        }
-        if (holder instanceof HorizontalGameViewHolder) {
-            var horizontalHolder = (HorizontalGameViewHolder) holder;
-            Glide.with(m_context).load(game.getBannerUrl())
-                    .into(horizontalHolder.getBanner());
-
-        }
-
-        if (game.getPrice().getValue() == 0) {
-            holder.getButton_purchase().setText(R.string.button_install);
-        } else {
-            holder.getButton_purchase().setText(formatPrice(game.getPrice(), Locale.getDefault()));
-        }
+    public void onBindViewHolder(@NonNull GameViewHolder holder, int position) {
+        GameDto game = getItem(position);
+        holder.bind(game, context);
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onGameClick(game);
+            }
+        });
     }
 
-    public static String formatPrice(Game.Price price, Locale locale) {
-        BigDecimal amount = new BigDecimal(price.getValue());
-
+    public static String formatPrice(double price, Locale locale) {
+        if (price == 0) {
+            return "Free";
+        }
+        BigDecimal amount = BigDecimal.valueOf(price);
         NumberFormat formatter = NumberFormat.getCurrencyInstance(locale);
-        formatter.setCurrency(Currency.getInstance(price.getCurrency()));
-
+        formatter.setCurrency(Currency.getInstance("USD"));
         return formatter.format(amount);
     }
 
     public static abstract class GameViewHolder extends RecyclerView.ViewHolder {
-        private TextView label_gameName;
-        private ImageView imageView_gameIcon;
-        private ImageView imageView_minimumAge;
-        private Button button_purchase;
+
+        protected final TextView labelGameName;
+        protected final ImageView imageViewGameIcon;
+        protected final ImageView imageViewMinimumAge;
+        protected final Button buttonPurchase;
 
         public GameViewHolder(@NonNull View itemView) {
-
             super(itemView);
-            label_gameName = itemView.findViewById(R.id.textView_gameName);
-            imageView_gameIcon = itemView.findViewById(R.id.imageView_gameIcon);
-            imageView_minimumAge = itemView.findViewById(R.id.imageView_ageRating);
-            button_purchase = itemView.findViewById(R.id.button_installGame);
-
+            labelGameName = itemView.findViewById(R.id.textView_gameName);
+            imageViewGameIcon = itemView.findViewById(R.id.imageView_gameIcon);
+            imageViewMinimumAge = itemView.findViewById(R.id.imageView_ageRating);
+            buttonPurchase = itemView.findViewById(R.id.button_installGame);
         }
 
-        public TextView getLabel_gameName() {
-            return label_gameName;
+        public void bind(GameDto game, Context context) {
+            labelGameName.setText(game.getTitle());
+            Glide.with(context)
+                    .load(game.getCoverImage())
+                    .placeholder(R.drawable.ic_videogame_asset_black_24dp)
+                    .into(imageViewGameIcon);
+            bindAgeRating(game.getAgeRating());
+            bindPrice(game);
         }
 
-        public ImageView getImageView_gameIcon() {
-            return imageView_gameIcon;
+        private void bindAgeRating(String ageRating) {
+            int resourceId = getAgeRatingResource(ageRating);
+            if (resourceId != 0) {
+                imageViewMinimumAge.setImageResource(resourceId);
+                imageViewMinimumAge.setVisibility(View.VISIBLE);
+            } else {
+                imageViewMinimumAge.setVisibility(View.GONE);
+            }
         }
 
-        public ImageView getImageView_minimumAge() {
-            return imageView_minimumAge;
+        private int getAgeRatingResource(String ageRating) {
+            if (ageRating == null) return 0;
+            return switch (ageRating) {
+                case "3+", "iarc-3" -> R.drawable.iarc_3;
+                case "7+", "iarc-7" -> R.drawable.iarc_7;
+                case "12+", "iarc-12" -> R.drawable.iarc_12;
+                case "16+", "iarc-16" -> R.drawable.iarc_16;
+                case "18+", "iarc-18" -> R.drawable.iarc_18;
+                default -> 0;
+            };
         }
 
-        public Button getButton_purchase() {
-            return button_purchase;
+        private void bindPrice(GameDto game) {
+            double effectivePrice = game.getEffectivePrice();
+            if (effectivePrice == 0) {
+                buttonPurchase.setText(R.string.button_install);
+            } else {
+                buttonPurchase.setText(formatPrice(effectivePrice, Locale.getDefault()));
+            }
         }
     }
 
     public static class HorizontalGameViewHolder extends GameViewHolder {
-        private ImageView m_banner;
 
-        private View container_gameinfo;
+        private final ImageView banner;
 
         public HorizontalGameViewHolder(@NonNull View itemView) {
             super(itemView);
-            m_banner = itemView.findViewById(R.id.imageView_banner);
-            container_gameinfo = itemView.findViewById(R.id.container_gameinfo);
+            banner = itemView.findViewById(R.id.imageView_banner);
         }
 
-        public ImageView getBanner() {
-            return m_banner;
-        }
-
-        public View getContainerGameinfo() {
-            return container_gameinfo;
+        @Override
+        public void bind(GameDto game, Context context) {
+            super.bind(game, context);
+            Glide.with(context)
+                    .load(game.getCoverImage())
+                    .placeholder(R.drawable.ic_videogame_asset_black_24dp)
+                    .into(banner);
         }
     }
 
