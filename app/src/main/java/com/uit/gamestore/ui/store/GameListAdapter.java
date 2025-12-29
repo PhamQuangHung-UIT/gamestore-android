@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,9 +32,14 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
     private final int direction;
     private final Context context;
     private OnGameClickListener clickListener;
+    private OnSaveClickListener saveClickListener;
 
     public interface OnGameClickListener {
         void onGameClick(GameDto game);
+    }
+
+    public interface OnSaveClickListener {
+        void onSaveClick(GameDto game);
     }
 
     private static final DiffUtil.ItemCallback<GameDto> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
@@ -60,6 +66,10 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         this.clickListener = listener;
     }
 
+    public void setOnSaveClickListener(@Nullable OnSaveClickListener listener) {
+        this.saveClickListener = listener;
+    }
+
     @NonNull
     @Override
     public GameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -77,11 +87,34 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         if (game == null) return;
 
         holder.bind(game, context);
+        
+        // Set click listener on the whole item
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
                 clickListener.onGameClick(game);
             }
         });
+
+        // Set save button listener (for horizontal items)
+        if (holder instanceof HorizontalGameViewHolder) {
+            HorizontalGameViewHolder hHolder = (HorizontalGameViewHolder) holder;
+            if (hHolder.buttonSave != null) {
+                hHolder.buttonSave.setOnClickListener(v -> {
+                    if (saveClickListener != null) {
+                        saveClickListener.onSaveClick(game);
+                    }
+                });
+            }
+        }
+
+        // Make sure buttons don't block item click
+        if (holder.buttonPurchase != null) {
+            holder.buttonPurchase.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onGameClick(game);
+                }
+            });
+        }
     }
 
     public static String formatPrice(double price, @NonNull Locale locale) {
@@ -179,10 +212,12 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
     public static class HorizontalGameViewHolder extends GameViewHolder {
 
         private final ImageView banner;
+        final ImageButton buttonSave;
 
         public HorizontalGameViewHolder(@NonNull View itemView) {
             super(itemView);
             banner = itemView.findViewById(R.id.imageView_banner);
+            buttonSave = itemView.findViewById(R.id.button_savedGame);
         }
 
         @Override

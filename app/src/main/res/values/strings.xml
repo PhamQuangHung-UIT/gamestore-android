@@ -58,4 +58,10 @@
     <string name="unknown">Unknown</string>
     <string name="error_occurred">An error occurred</string>
     <string name="no_internet">No internet connection</string>
+    <string name="search_games">Search Games</string>
+    <string name="search_hint">Enter game name...</string>
+    <string name="search">Search</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear">Clear</string>
+    <string name="game_saved">Game saved!</string>
 </resources>
