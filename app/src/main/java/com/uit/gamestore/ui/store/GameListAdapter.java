@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
+import java.util.Objects;
 
 public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameViewHolder> {
 
@@ -37,14 +39,14 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
     private static final DiffUtil.ItemCallback<GameDto> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull GameDto oldItem, @NonNull GameDto newItem) {
-            return oldItem.getId().equals(newItem.getId());
+            return Objects.equals(oldItem.getId(), newItem.getId());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull GameDto oldItem, @NonNull GameDto newItem) {
-            return oldItem.getId().equals(newItem.getId()) &&
-                    oldItem.getTitle().equals(newItem.getTitle()) &&
-                    oldItem.getPrice() == newItem.getPrice();
+            return Objects.equals(oldItem.getId(), newItem.getId()) &&
+                    Objects.equals(oldItem.getName(), newItem.getName()) &&
+                    oldItem.getOriginalPrice() == newItem.getOriginalPrice();
         }
     };
 
@@ -54,7 +56,7 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         this.context = context;
     }
 
-    public void setOnGameClickListener(OnGameClickListener listener) {
+    public void setOnGameClickListener(@Nullable OnGameClickListener listener) {
         this.clickListener = listener;
     }
 
@@ -72,6 +74,8 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
     @Override
     public void onBindViewHolder(@NonNull GameViewHolder holder, int position) {
         GameDto game = getItem(position);
+        if (game == null) return;
+
         holder.bind(game, context);
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
@@ -80,14 +84,18 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         });
     }
 
-    public static String formatPrice(double price, Locale locale) {
-        if (price == 0) {
+    public static String formatPrice(double price, @NonNull Locale locale) {
+        if (price <= 0) {
             return "Free";
         }
-        BigDecimal amount = BigDecimal.valueOf(price);
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(locale);
-        formatter.setCurrency(Currency.getInstance("USD"));
-        return formatter.format(amount);
+        try {
+            BigDecimal amount = BigDecimal.valueOf(price);
+            NumberFormat formatter = NumberFormat.getCurrencyInstance(locale);
+            formatter.setCurrency(Currency.getInstance("USD"));
+            return formatter.format(amount);
+        } catch (Exception e) {
+            return String.format(locale, "$%.2f", price);
+        }
     }
 
     public static abstract class GameViewHolder extends RecyclerView.ViewHolder {
@@ -105,41 +113,36 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
             buttonPurchase = itemView.findViewById(R.id.button_installGame);
         }
 
-        public void bind(GameDto game, Context context) {
-            labelGameName.setText(game.getTitle());
-            Glide.with(context)
-                    .load(game.getCoverImage())
-                    .placeholder(R.drawable.ic_videogame_asset_black_24dp)
-                    .into(imageViewGameIcon);
-            bindAgeRating(game.getAgeRating());
+        public void bind(@NonNull GameDto game, @NonNull Context context) {
+            // Set game name with null safety
+            String name = game.getName();
+            labelGameName.setText(name != null ? name : "Unknown Game");
+
+            // Load image with Glide
+            String imageUrl = game.getImageUrl();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Glide.with(context)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_videogame_asset_black_24dp)
+                        .error(R.drawable.ic_videogame_asset_black_24dp)
+                        .into(imageViewGameIcon);
+            } else {
+                imageViewGameIcon.setImageResource(R.drawable.ic_videogame_asset_black_24dp);
+            }
+
+            // Hide age rating since ERD doesn't have this field
+            if (imageViewMinimumAge != null) {
+                imageViewMinimumAge.setVisibility(View.GONE);
+            }
+
             bindPrice(game);
         }
 
-        private void bindAgeRating(String ageRating) {
-            int resourceId = getAgeRatingResource(ageRating);
-            if (resourceId != 0) {
-                imageViewMinimumAge.setImageResource(resourceId);
-                imageViewMinimumAge.setVisibility(View.VISIBLE);
-            } else {
-                imageViewMinimumAge.setVisibility(View.GONE);
-            }
-        }
+        private void bindPrice(@NonNull GameDto game) {
+            if (buttonPurchase == null) return;
 
-        private int getAgeRatingResource(String ageRating) {
-            if (ageRating == null) return 0;
-            return switch (ageRating) {
-                case "3+", "iarc-3" -> R.drawable.iarc_3;
-                case "7+", "iarc-7" -> R.drawable.iarc_7;
-                case "12+", "iarc-12" -> R.drawable.iarc_12;
-                case "16+", "iarc-16" -> R.drawable.iarc_16;
-                case "18+", "iarc-18" -> R.drawable.iarc_18;
-                default -> 0;
-            };
-        }
-
-        private void bindPrice(GameDto game) {
             double effectivePrice = game.getEffectivePrice();
-            if (effectivePrice == 0) {
+            if (effectivePrice <= 0) {
                 buttonPurchase.setText(R.string.button_install);
             } else {
                 buttonPurchase.setText(formatPrice(effectivePrice, Locale.getDefault()));
@@ -157,12 +160,21 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         }
 
         @Override
-        public void bind(GameDto game, Context context) {
+        public void bind(@NonNull GameDto game, @NonNull Context context) {
             super.bind(game, context);
-            Glide.with(context)
-                    .load(game.getCoverImage())
-                    .placeholder(R.drawable.ic_videogame_asset_black_24dp)
-                    .into(banner);
+
+            if (banner == null) return;
+
+            String imageUrl = game.getImageUrl();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Glide.with(context)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_videogame_asset_black_24dp)
+                        .error(R.drawable.ic_videogame_asset_black_24dp)
+                        .into(banner);
+            } else {
+                banner.setImageResource(R.drawable.ic_videogame_asset_black_24dp);
+            }
         }
     }
 

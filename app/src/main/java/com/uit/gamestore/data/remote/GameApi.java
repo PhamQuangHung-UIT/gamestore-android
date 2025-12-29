@@ -17,7 +17,8 @@ public interface GameApi {
             @Query("search") String search,
             @Query("genre") String genre,
             @Query("publisherId") String publisherId,
-            @Query("onSale") Boolean onSale
+            @Query("releaseStatus") String releaseStatus,
+            @Query("hasDiscount") Boolean hasDiscount
     );
 
     @GET("games")

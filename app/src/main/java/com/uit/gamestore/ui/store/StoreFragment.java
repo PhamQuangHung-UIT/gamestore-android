@@ -88,13 +88,16 @@ public class StoreFragment extends Fragment {
     }
 
     private void onError(String message) {
-        if (message != null && getContext() != null) {
+        if (message != null && !message.isEmpty() && getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            storeViewModel.clearError();
         }
     }
 
     private void onGameClick(GameDto game) {
         // TODO: Navigate to game detail screen
-        Toast.makeText(getContext(), "Selected: " + game.getTitle(), Toast.LENGTH_SHORT).show();
+        if (game != null && getContext() != null) {
+            Toast.makeText(getContext(), "Selected: " + game.getName(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

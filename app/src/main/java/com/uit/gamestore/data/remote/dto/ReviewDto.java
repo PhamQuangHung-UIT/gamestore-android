@@ -12,11 +12,17 @@ public class ReviewDto {
     @SerializedName("comment")
     private String comment;
 
-    @SerializedName("customer")
+    @SerializedName("customerId")
     private CustomerInfo customer;
+
+    @SerializedName("gameId")
+    private String gameId;
 
     @SerializedName("createdAt")
     private String createdAt;
+
+    @SerializedName("updatedAt")
+    private String updatedAt;
 
     public String getId() {
         return id;
@@ -34,8 +40,16 @@ public class ReviewDto {
         return customer;
     }
 
+    public String getGameId() {
+        return gameId;
+    }
+
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
     }
 
     public static class CustomerInfo {
@@ -45,12 +59,19 @@ public class ReviewDto {
         @SerializedName("username")
         private String username;
 
+        @SerializedName("email")
+        private String email;
+
         public String getId() {
             return id;
         }
 
         public String getUsername() {
             return username;
+        }
+
+        public String getEmail() {
+            return email;
         }
     }
 }

@@ -5,35 +5,39 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class OrderRequest {
-    @SerializedName("games")
-    private final List<GameItem> games;
+    @SerializedName("items")
+    private final List<OrderItem> items;
 
-    @SerializedName("paymentMethod")
-    private final String paymentMethod;
-
-    public OrderRequest(List<GameItem> games, String paymentMethod) {
-        this.games = games;
-        this.paymentMethod = paymentMethod;
+    public OrderRequest(List<OrderItem> items) {
+        this.items = items;
     }
 
-    public List<GameItem> getGames() {
-        return games;
+    public List<OrderItem> getItems() {
+        return items;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public static class GameItem {
+    public static class OrderItem {
         @SerializedName("gameId")
         private final String gameId;
 
-        public GameItem(String gameId) {
+        @SerializedName("quantity")
+        private final int quantity;
+
+        public OrderItem(String gameId, int quantity) {
             this.gameId = gameId;
+            this.quantity = quantity;
+        }
+
+        public OrderItem(String gameId) {
+            this(gameId, 1);
         }
 
         public String getGameId() {
             return gameId;
+        }
+
+        public int getQuantity() {
+            return quantity;
         }
     }
 }

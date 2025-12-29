@@ -7,12 +7,13 @@ import androidx.lifecycle.ViewModel;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.repository.GameRepository;
 
+import java.util.Collections;
 import java.util.List;
 
 public class StoreViewModel extends ViewModel {
 
-    private final MutableLiveData<List<GameDto>> allGames = new MutableLiveData<>();
-    private final MutableLiveData<List<GameDto>> saleGames = new MutableLiveData<>();
+    private final MutableLiveData<List<GameDto>> allGames = new MutableLiveData<>(Collections.emptyList());
+    private final MutableLiveData<List<GameDto>> saleGames = new MutableLiveData<>(Collections.emptyList());
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> error = new MutableLiveData<>();
 
@@ -20,10 +21,12 @@ public class StoreViewModel extends ViewModel {
 
     public void loadAllGames() {
         isLoading.setValue(true);
+        error.setValue(null);
+
         gameRepository.getAllGames(new GameRepository.GamesCallback() {
             @Override
             public void onSuccess(List<GameDto> games) {
-                allGames.postValue(games);
+                allGames.postValue(games != null ? games : Collections.emptyList());
                 isLoading.postValue(false);
             }
 
@@ -36,25 +39,32 @@ public class StoreViewModel extends ViewModel {
     }
 
     public void loadSaleGames() {
-        gameRepository.searchGames(null, null, true, new GameRepository.GamesCallback() {
+        gameRepository.getDiscountedGames(new GameRepository.GamesCallback() {
             @Override
             public void onSuccess(List<GameDto> games) {
-                saleGames.postValue(games);
+                saleGames.postValue(games != null ? games : Collections.emptyList());
             }
 
             @Override
             public void onError(String message) {
-                error.postValue(message);
+                // Don't show error for sale games, just leave empty
             }
         });
     }
 
     public void searchGames(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            loadAllGames();
+            return;
+        }
+
         isLoading.setValue(true);
-        gameRepository.searchGames(query, null, null, new GameRepository.GamesCallback() {
+        error.setValue(null);
+
+        gameRepository.searchGames(query.trim(), null, null, new GameRepository.GamesCallback() {
             @Override
             public void onSuccess(List<GameDto> games) {
-                allGames.postValue(games);
+                allGames.postValue(games != null ? games : Collections.emptyList());
                 isLoading.postValue(false);
             }
 
@@ -64,6 +74,10 @@ public class StoreViewModel extends ViewModel {
                 isLoading.postValue(false);
             }
         });
+    }
+
+    public void clearError() {
+        error.setValue(null);
     }
 
     public LiveData<List<GameDto>> getAllGames() {

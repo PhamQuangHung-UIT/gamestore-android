@@ -17,8 +17,15 @@ public class AuthInterceptor implements Interceptor {
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request originalRequest = chain.request();
 
-        String token = TokenManager.getInstance().getToken();
-        if (token == null) {
+        String token = null;
+        try {
+            token = TokenManager.getInstance().getToken();
+        } catch (IllegalStateException e) {
+            // TokenManager not initialized, proceed without token
+            return chain.proceed(originalRequest);
+        }
+
+        if (token == null || token.isEmpty()) {
             return chain.proceed(originalRequest);
         }
 

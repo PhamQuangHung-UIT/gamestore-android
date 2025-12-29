@@ -9,14 +9,26 @@ public class CustomerProfileDto {
     @SerializedName("email")
     private String email;
 
-    @SerializedName("username")
-    private String username;
+    @SerializedName("genderId")
+    private GenderDto gender;
 
     @SerializedName("phoneNumber")
     private String phoneNumber;
 
-    @SerializedName("genderId")
-    private Integer genderId;
+    @SerializedName("username")
+    private String username;
+
+    @SerializedName("accountStatus")
+    private String accountStatus;
+
+    @SerializedName("accountBalance")
+    private double accountBalance;
+
+    @SerializedName("registrationDate")
+    private String registrationDate;
+
+    @SerializedName("socialMedia")
+    private String socialMedia;
 
     @SerializedName("bankType")
     private String bankType;
@@ -27,8 +39,11 @@ public class CustomerProfileDto {
     @SerializedName("description")
     private String description;
 
-    @SerializedName("walletBalance")
-    private double walletBalance;
+    @SerializedName("createdAt")
+    private String createdAt;
+
+    @SerializedName("updatedAt")
+    private String updatedAt;
 
     public String getId() {
         return id;
@@ -38,16 +53,32 @@ public class CustomerProfileDto {
         return email;
     }
 
-    public String getUsername() {
-        return username;
+    public GenderDto getGender() {
+        return gender;
     }
 
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public Integer getGenderId() {
-        return genderId;
+    public String getUsername() {
+        return username;
+    }
+
+    public String getAccountStatus() {
+        return accountStatus;
+    }
+
+    public double getAccountBalance() {
+        return accountBalance;
+    }
+
+    public String getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public String getSocialMedia() {
+        return socialMedia;
     }
 
     public String getBankType() {
@@ -62,7 +93,27 @@ public class CustomerProfileDto {
         return description;
     }
 
-    public double getWalletBalance() {
-        return walletBalance;
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public static class GenderDto {
+        @SerializedName("_id")
+        private String id;
+
+        @SerializedName("name")
+        private String name;
+
+        public String getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }

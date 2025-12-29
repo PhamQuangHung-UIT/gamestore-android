@@ -72,13 +72,19 @@ public class AuthRepository {
     }
 
     private void saveSession(LoginResponse response) {
+        if (response == null || response.getToken() == null) {
+            return;
+        }
+
         TokenManager tokenManager = TokenManager.getInstance();
         tokenManager.saveToken(response.getToken());
-        if (response.getCustomer() != null) {
+
+        LoginResponse.CustomerDto customer = response.getCustomer();
+        if (customer != null) {
             tokenManager.saveUserInfo(
-                    response.getCustomer().getId(),
-                    response.getCustomer().getEmail(),
-                    response.getCustomer().getUsername()
+                    customer.getId() != null ? customer.getId() : "",
+                    customer.getEmail() != null ? customer.getEmail() : "",
+                    customer.getUsername() != null ? customer.getUsername() : ""
             );
         }
     }
@@ -86,11 +92,24 @@ public class AuthRepository {
     private String parseError(Response<?> response) {
         try {
             if (response.errorBody() != null) {
-                return response.errorBody().string();
+                String errorBody = response.errorBody().string();
+                if (errorBody != null && !errorBody.isEmpty()) {
+                    return errorBody;
+                }
             }
         } catch (Exception e) {
-            // ignore
+            // ignore parsing error
         }
+
+        int code = response.code();
+        if (code == 401) {
+            return "Invalid email or password";
+        } else if (code == 400) {
+            return "Invalid request. Please check your input.";
+        } else if (code >= 500) {
+            return "Server error. Please try again later.";
+        }
+
         return "Login failed. Please check your credentials.";
     }
 }

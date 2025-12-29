@@ -41,14 +41,50 @@ public class GameRepository {
         });
     }
 
-    public void searchGames(String search, String genre, Boolean onSale, GamesCallback callback) {
-        RetrofitClient.getGameApi().getGames(search, genre, null, onSale).enqueue(new Callback<>() {
+    public void searchGames(String search, String genre, Boolean hasDiscount, GamesCallback callback) {
+        RetrofitClient.getGameApi().getGames(search, genre, null, "Released", hasDiscount).enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
                     callback.onError("Failed to search games");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<GameDto>> call, @NonNull Throwable t) {
+                callback.onError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    public void getGamesByGenre(String genre, GamesCallback callback) {
+        RetrofitClient.getGameApi().getGames(null, genre, null, "Released", null).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to load games");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<GameDto>> call, @NonNull Throwable t) {
+                callback.onError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    public void getDiscountedGames(GamesCallback callback) {
+        RetrofitClient.getGameApi().getGames(null, null, null, "Released", true).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to load discounted games");
                 }
             }
 

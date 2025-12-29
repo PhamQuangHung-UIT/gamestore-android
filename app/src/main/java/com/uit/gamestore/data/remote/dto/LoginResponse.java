@@ -30,8 +30,14 @@ public class LoginResponse {
         @SerializedName("phoneNumber")
         private String phoneNumber;
 
-        @SerializedName("walletBalance")
-        private double walletBalance;
+        @SerializedName("accountStatus")
+        private String accountStatus;
+
+        @SerializedName("accountBalance")
+        private double accountBalance;
+
+        @SerializedName("registrationDate")
+        private String registrationDate;
 
         public String getId() {
             return id;
@@ -49,8 +55,16 @@ public class LoginResponse {
             return phoneNumber;
         }
 
-        public double getWalletBalance() {
-            return walletBalance;
+        public String getAccountStatus() {
+            return accountStatus;
+        }
+
+        public double getAccountBalance() {
+            return accountBalance;
+        }
+
+        public String getRegistrationDate() {
+            return registrationDate;
         }
     }
 }

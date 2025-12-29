@@ -86,12 +86,17 @@ public class LoginActivity extends AppCompatActivity {
         if (result instanceof Result.Error) {
             Result.Error<LoginResponse> error = (Result.Error<LoginResponse>) result;
             String message = error.getMessage();
-            Log.e(TAG, message);
-            Snackbar.make(loginButton, message, Snackbar.LENGTH_SHORT).show();
+            Log.e(TAG, message != null ? message : "Unknown error");
+            Snackbar.make(loginButton, message != null ? message : "Login failed", Snackbar.LENGTH_SHORT).show();
         } else if (result instanceof Result.Success) {
             LoginResponse response = ((Result.Success<LoginResponse>) result).getValue();
-            Log.d(TAG, "Login successful: " + response.getCustomer().getUsername());
+            if (response != null && response.getCustomer() != null) {
+                Log.d(TAG, "Login successful: " + response.getCustomer().getUsername());
+            } else {
+                Log.d(TAG, "Login successful");
+            }
             Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         }
