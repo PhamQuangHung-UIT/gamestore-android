@@ -49,6 +49,10 @@
     <string name="balance">Balance</string>
     <string name="logout">Logout</string>
     <string name="login_required">Please login to continue</string>
+    <string name="login_required_title">Login Required</string>
+    <string name="login_required_saved_games">Sign in to save games and access them later</string>
+    <string name="login_required_your_games">Sign in to view your purchased games</string>
+    <string name="no_saved_games">No saved games yet</string>
 
     <!-- General -->
     <string name="unknown">Unknown</string>
