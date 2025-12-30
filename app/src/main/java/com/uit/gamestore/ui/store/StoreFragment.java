@@ -64,8 +64,9 @@ public class StoreFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_store, container, false);
 
+        // Show search icon on Store page
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).showStoreToolbar();
+            ((MainActivity) getActivity()).showSearchIcon();
         }
 
         initViews(root);

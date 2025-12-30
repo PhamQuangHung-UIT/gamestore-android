@@ -2,11 +2,11 @@ package com.uit.gamestore;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -14,9 +14,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.uit.gamestore.ui.store.GameStoreToolbar;
 
 public class MainActivity extends AppCompatActivity {
-    private Toolbar m_defaultToolbar;
-    private GameStoreToolbar m_storeToolbar;
-
+    private GameStoreToolbar m_toolbar;
+    private ImageButton m_searchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,20 +24,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        //Get toolbar
-        m_defaultToolbar = findViewById(R.id.toolbar_default);
-        m_storeToolbar = findViewById(R.id.toolbar_gamestore);
+        m_toolbar = findViewById(R.id.toolbar_gamestore);
+        m_searchButton = m_toolbar.findViewById(R.id.button_search);
 
-        setSupportActionBar(m_defaultToolbar);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+        setSupportActionBar(m_toolbar);
+        
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_store, R.id.navigation_your_games, R.id.navigation_settings)
                 .build();
         NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_activity_main);
         if (navHost == null) {
-            // ensure any pending fragment transactions are executed
             getSupportFragmentManager().executePendingTransactions();
             navHost = (NavHostFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_activity_main);
@@ -48,22 +44,19 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
     }
 
-    public void showDefaultToolbar() {
-        m_defaultToolbar.setVisibility(View.VISIBLE);
-        m_storeToolbar.setVisibility(View.GONE);
-
-        setSupportActionBar(m_defaultToolbar);
+    public void showSearchIcon() {
+        if (m_searchButton != null) {
+            m_searchButton.setVisibility(View.VISIBLE);
+        }
     }
 
-    public void showStoreToolbar() {
-        m_defaultToolbar.setVisibility(View.GONE);
-        m_storeToolbar.setVisibility(View.VISIBLE);
-
-        setSupportActionBar(m_storeToolbar);
+    public void hideSearchIcon() {
+        if (m_searchButton != null) {
+            m_searchButton.setVisibility(View.GONE);
+        }
     }
 
-
-    public Toolbar getToolbar() {
-        return m_defaultToolbar;
+    public GameStoreToolbar getToolbar() {
+        return m_toolbar;
     }
 }
