@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.local.TokenManager;
@@ -82,7 +81,14 @@ public class SettingsFragment extends Fragment {
         View menuWishlist = requireView().findViewById(R.id.menuWishlist);
         if (menuWishlist != null) {
             menuWishlist.setOnClickListener(v -> {
-                Navigation.findNavController(requireView()).navigate(R.id.navigation_your_games);
+                // Use BottomNavigationView to switch tabs properly
+                if (getActivity() != null) {
+                    com.google.android.material.bottomnavigation.BottomNavigationView navView = 
+                            getActivity().findViewById(R.id.nav_view);
+                    if (navView != null) {
+                        navView.setSelectedItemId(R.id.navigation_your_games);
+                    }
+                }
             });
         }
     }

@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,8 +23,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.uit.gamestore.R;
+import com.uit.gamestore.data.local.TokenManager;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.remote.dto.ReviewDto;
+import com.uit.gamestore.ui.login.LoginActivity;
 
 import java.util.List;
 import java.util.Locale;
@@ -51,6 +54,7 @@ public class GameDetailActivity extends AppCompatActivity {
     private TextView textViewReleaseDate;
     private TextView textViewNoReviews;
     private Button buttonBuy;
+    private ImageButton buttonSave;
     private RecyclerView recyclerViewReviews;
     private ProgressBar progressBar;
 
@@ -80,6 +84,11 @@ public class GameDetailActivity extends AppCompatActivity {
         observeViewModel();
 
         viewModel.loadGame(gameId);
+        
+        // Load wishlist if user is logged in
+        if (TokenManager.getInstance().isLoggedIn()) {
+            viewModel.loadWishlist();
+        }
     }
 
     private void initViews() {
@@ -98,10 +107,12 @@ public class GameDetailActivity extends AppCompatActivity {
         textViewReleaseDate = findViewById(R.id.textViewReleaseDate);
         textViewNoReviews = findViewById(R.id.textViewNoReviews);
         buttonBuy = findViewById(R.id.buttonBuy);
+        buttonSave = findViewById(R.id.buttonSave);
         recyclerViewReviews = findViewById(R.id.recyclerViewReviews);
         progressBar = findViewById(R.id.progressBar);
 
         buttonBuy.setOnClickListener(v -> onBuyClicked());
+        buttonSave.setOnClickListener(v -> onSaveClicked());
     }
 
     private void setupToolbar() {
@@ -126,6 +137,9 @@ public class GameDetailActivity extends AppCompatActivity {
         viewModel.getReviews().observe(this, this::displayReviews);
         viewModel.getIsLoading().observe(this, this::showLoading);
         viewModel.getError().observe(this, this::showError);
+        viewModel.getIsSaved().observe(this, this::updateSaveButton);
+        viewModel.getIsSaveLoading().observe(this, this::updateSaveLoading);
+        viewModel.getSaveMessage().observe(this, this::showSaveMessage);
     }
 
     private void displayGame(@Nullable GameDto game) {
@@ -227,6 +241,35 @@ public class GameDetailActivity extends AppCompatActivity {
     private void onBuyClicked() {
         // TODO: Implement purchase flow
         Toast.makeText(this, "Purchase feature coming soon!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void onSaveClicked() {
+        if (!TokenManager.getInstance().isLoggedIn()) {
+            Toast.makeText(this, R.string.login_required, Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
+            return;
+        }
+        viewModel.toggleSave();
+    }
+
+    private void updateSaveButton(boolean isSaved) {
+        if (isSaved) {
+            buttonSave.setImageResource(R.drawable.ic_bookmark_filled_24dp);
+        } else {
+            buttonSave.setImageResource(R.drawable.ic_bookmark_outlined_24dp);
+        }
+    }
+
+    private void updateSaveLoading(boolean isLoading) {
+        buttonSave.setEnabled(!isLoading);
+        buttonSave.setAlpha(isLoading ? 0.5f : 1.0f);
+    }
+
+    private void showSaveMessage(@Nullable String message) {
+        if (message != null && !message.isEmpty()) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            viewModel.clearSaveMessage();
+        }
     }
 
     private void loadImage(@Nullable String url, @NonNull ImageView imageView) {

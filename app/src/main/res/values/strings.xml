@@ -60,6 +60,7 @@
     <string name="about">About</string>
     <string name="top_up">Top Up</string>
     <string name="game_removed">Game removed from wishlist</string>
+    <string name="save_game">Save game</string>
 
     <!-- General -->
     <string name="unknown">Unknown</string>

@@ -181,6 +181,16 @@
                             tools:visibility="visible" />
                     </LinearLayout>
 
+                    <ImageButton
+                        android:id="@+id/buttonSave"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/save_game"
+                        android:src="@drawable/ic_bookmark_outlined_24dp"
+                        app:tint="@color/design_default_color_primary" />
+
                     <Button
                         android:id="@+id/buttonBuy"
                         android:layout_width="wrap_content"
