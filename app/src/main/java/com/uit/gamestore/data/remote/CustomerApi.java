@@ -4,6 +4,7 @@ import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.remote.dto.OrderDto;
 import com.uit.gamestore.data.remote.dto.OrderRequest;
+import com.uit.gamestore.data.remote.dto.OrderResponse;
 import com.uit.gamestore.data.remote.dto.WishlistResponse;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public interface CustomerApi {
     Call<List<OrderDto>> getOrders();
 
     @POST("customers/me/orders")
-    Call<OrderDto> createOrder(@Body OrderRequest request);
+    Call<OrderResponse> createOrder(@Body OrderRequest request);
 
     @GET("customers/me/library")
     Call<List<GameDto>> getLibrary();

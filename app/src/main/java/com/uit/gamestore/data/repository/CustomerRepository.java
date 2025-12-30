@@ -8,6 +8,7 @@ import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.remote.dto.OrderDto;
 import com.uit.gamestore.data.remote.dto.OrderRequest;
+import com.uit.gamestore.data.remote.dto.OrderResponse;
 import com.uit.gamestore.data.remote.dto.WishlistResponse;
 
 import java.util.Collections;
@@ -170,24 +171,22 @@ public class CustomerRepository {
         });
     }
 
-    public void createOrder(@Nullable OrderRequest request, @NonNull OrderCallback callback) {
-        if (request == null || request.getItems() == null || request.getItems().isEmpty()) {
-            callback.onError("Order must contain at least one item");
-            return;
-        }
+    public void createOrder(@NonNull String gameId, @NonNull String paymentMethod, @NonNull OrderCallback callback) {
+        List<OrderRequest.GameItem> games = Collections.singletonList(new OrderRequest.GameItem(gameId));
+        OrderRequest request = new OrderRequest(games, paymentMethod);
 
         RetrofitClient.getCustomerApi().createOrder(request).enqueue(new Callback<>() {
             @Override
-            public void onResponse(@NonNull Call<OrderDto> call, @NonNull Response<OrderDto> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+            public void onResponse(@NonNull Call<OrderResponse> call, @NonNull Response<OrderResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getOrder());
                 } else {
                     callback.onError(parseError(response, "Failed to create order"));
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<OrderDto> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<OrderResponse> call, @NonNull Throwable t) {
                 callback.onError("Network error: " + (t.getMessage() != null ? t.getMessage() : "Unknown error"));
             }
         });

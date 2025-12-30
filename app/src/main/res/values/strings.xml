@@ -41,6 +41,13 @@
     <string name="version">Version</string>
     <string name="buy_now">Buy Now</string>
     <string name="add_to_cart">Add to Cart</string>
+    <string name="select_payment_method">Select Payment Method</string>
+    <string name="confirm_purchase">Confirm Purchase</string>
+    <string name="confirm_purchase_message">Purchase \"%1$s\" for $%2$.2f using %3$s?</string>
+    <string name="processing">Processing…</string>
+    <string name="purchased">Purchased</string>
+    <string name="purchase_success">Purchase Successful!</string>
+    <string name="purchase_success_message">\"%1$s\" has been added to your library. Enjoy your game!</string>
     <string name="rating_format">%.1f ★</string>
     <string name="review_count_format">(%d reviews)</string>
     <string name="price_format">$%.2f</string>

@@ -1,14 +1,25 @@
 package com.uit.gamestore.data.remote.dto;
 
-public class RegisterRequest {
-    private final String email;
-    private final String password;
-    private final String username;
+import com.google.gson.annotations.SerializedName;
 
-    public RegisterRequest(String email, String password, String username) {
+public class RegisterRequest {
+    @SerializedName("email")
+    private final String email;
+    
+    @SerializedName("password")
+    private final String password;
+    
+    @SerializedName("username")
+    private final String username;
+    
+    @SerializedName("phoneNumber")
+    private final String phoneNumber;
+
+    public RegisterRequest(String email, String password, String username, String phoneNumber) {
         this.email = email;
         this.password = password;
         this.username = username;
+        this.phoneNumber = phoneNumber;
     }
 
     public String getEmail() {
@@ -21,5 +32,9 @@ public class RegisterRequest {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 }

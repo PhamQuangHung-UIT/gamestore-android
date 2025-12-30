@@ -5,17 +5,32 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class OrderDto {
-    @SerializedName("_id")
+    @SerializedName("id")
     private String id;
+
+    @SerializedName("_id")
+    private String _id;
 
     @SerializedName("orderDate")
     private String orderDate;
+
+    @SerializedName("totalValue")
+    private double totalValue;
 
     @SerializedName("totalAmount")
     private double totalAmount;
 
     @SerializedName("customerId")
     private String customerId;
+
+    @SerializedName("paymentMethod")
+    private String paymentMethod;
+
+    @SerializedName("paymentStatus")
+    private String paymentStatus;
+
+    @SerializedName("transactionId")
+    private String transactionId;
 
     @SerializedName("orderDetails")
     private List<OrderDetailDto> orderDetails;
@@ -27,19 +42,31 @@ public class OrderDto {
     private String updatedAt;
 
     public String getId() {
-        return id;
+        return id != null ? id : _id;
     }
 
     public String getOrderDate() {
         return orderDate;
     }
 
-    public double getTotalAmount() {
-        return totalAmount;
+    public double getTotalValue() {
+        return totalValue > 0 ? totalValue : totalAmount;
     }
 
     public String getCustomerId() {
         return customerId;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
     }
 
     public List<OrderDetailDto> getOrderDetails() {
@@ -55,31 +82,27 @@ public class OrderDto {
     }
 
     public static class OrderDetailDto {
-        @SerializedName("_id")
+        @SerializedName("id")
         private String id;
 
-        @SerializedName("quantity")
-        private int quantity;
+        @SerializedName("_id")
+        private String _id;
 
-        @SerializedName("unitPrice")
-        private double unitPrice;
+        @SerializedName("value")
+        private double value;
 
-        @SerializedName("gameId")
+        @SerializedName("game")
         private GameDto game;
 
-        @SerializedName("gameKeyId")
+        @SerializedName("gameKey")
         private GameKeyDto gameKey;
 
         public String getId() {
-            return id;
+            return id != null ? id : _id;
         }
 
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public double getUnitPrice() {
-            return unitPrice;
+        public double getValue() {
+            return value;
         }
 
         public GameDto getGame() {
@@ -92,25 +115,35 @@ public class OrderDto {
     }
 
     public static class GameKeyDto {
-        @SerializedName("_id")
+        @SerializedName("id")
         private String id;
+
+        @SerializedName("_id")
+        private String _id;
 
         @SerializedName("keyCode")
         private String keyCode;
 
-        @SerializedName("keyStatus")
-        private String keyStatus;
+        @SerializedName("gameVersion")
+        private String gameVersion;
+
+        @SerializedName("activationStatus")
+        private String activationStatus;
 
         public String getId() {
-            return id;
+            return id != null ? id : _id;
         }
 
         public String getKeyCode() {
             return keyCode;
         }
 
-        public String getKeyStatus() {
-            return keyStatus;
+        public String getGameVersion() {
+            return gameVersion;
+        }
+
+        public String getActivationStatus() {
+            return activationStatus;
         }
     }
 }

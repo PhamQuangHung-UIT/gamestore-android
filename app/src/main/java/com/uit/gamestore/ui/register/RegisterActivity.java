@@ -1,6 +1,5 @@
 package com.uit.gamestore.ui.register;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,12 +12,12 @@ import com.google.android.material.snackbar.Snackbar;
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.remote.dto.LoginResponse;
 import com.uit.gamestore.data.repository.AuthRepository;
-import com.uit.gamestore.ui.login.LoginActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private EditText emailEditText;
+    private EditText phoneEditText;
     private EditText passwordEditText;
     private EditText confirmPasswordEditText;
     private Button registerButton;
@@ -39,6 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void initViews() {
         usernameEditText = findViewById(R.id.editText_username);
         emailEditText = findViewById(R.id.editText_email);
+        phoneEditText = findViewById(R.id.editText_phone);
         passwordEditText = findViewById(R.id.editText_password);
         confirmPasswordEditText = findViewById(R.id.editText_confirmPassword);
         registerButton = findViewById(R.id.button_register);
@@ -57,6 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         String username = usernameEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
+        String phone = phoneEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString();
         String confirmPassword = confirmPasswordEditText.getText().toString();
 
@@ -70,6 +71,19 @@ public class RegisterActivity extends AppCompatActivity {
         if (email.isEmpty()) {
             emailEditText.setError("Email is required");
             emailEditText.requestFocus();
+            return;
+        }
+
+        if (phone.isEmpty()) {
+            phoneEditText.setError("Phone number is required");
+            phoneEditText.requestFocus();
+            return;
+        }
+
+        // Validate phone format (Vietnamese format)
+        if (!phone.matches("^(0|\\+84)[0-9]{9,10}$")) {
+            phoneEditText.setError("Invalid phone number format");
+            phoneEditText.requestFocus();
             return;
         }
 
@@ -93,16 +107,13 @@ public class RegisterActivity extends AppCompatActivity {
 
         setLoading(true);
 
-        authRepository.register(email, password, username, new AuthRepository.AuthCallback() {
+        authRepository.register(email, password, username, phone, new AuthRepository.AuthCallback() {
             @Override
             public void onSuccess(LoginResponse response) {
                 runOnUiThread(() -> {
                     setLoading(false);
                     Toast.makeText(RegisterActivity.this, R.string.registration_success, Toast.LENGTH_SHORT).show();
                     // Go back to login
-                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
                     finish();
                 });
             }

@@ -87,6 +87,32 @@
             app:layout_constraintTop_toBottomOf="@+id/label_email" />
 
         <TextView
+            android:id="@+id/label_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_phone"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editText_email" />
+
+        <EditText
+            android:id="@+id/editText_phone"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/shape_rounded_border_16dp"
+            android:ems="10"
+            android:inputType="phone"
+            android:textColor="#FAFAFA"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_phone" />
+
+        <TextView
             android:id="@+id/label_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -95,7 +121,7 @@
             android:text="@string/label_password"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editText_email" />
+            app:layout_constraintTop_toBottomOf="@+id/editText_phone" />
 
         <EditText
             android:id="@+id/editText_password"

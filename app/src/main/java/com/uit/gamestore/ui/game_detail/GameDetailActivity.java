@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
@@ -25,7 +26,9 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.local.TokenManager;
 import com.uit.gamestore.data.remote.dto.GameDto;
+import com.uit.gamestore.data.remote.dto.OrderDto;
 import com.uit.gamestore.data.remote.dto.ReviewDto;
+import com.uit.gamestore.data.repository.CustomerRepository;
 import com.uit.gamestore.ui.login.LoginActivity;
 
 import java.util.List;
@@ -37,6 +40,8 @@ public class GameDetailActivity extends AppCompatActivity {
 
     private GameDetailViewModel viewModel;
     private ReviewAdapter reviewAdapter;
+    private final CustomerRepository customerRepository = new CustomerRepository();
+    private GameDto currentGame;
 
     // Views
     private ImageView imageViewBanner;
@@ -144,6 +149,8 @@ public class GameDetailActivity extends AppCompatActivity {
 
     private void displayGame(@Nullable GameDto game) {
         if (game == null) return;
+        
+        currentGame = game;
 
         // Images
         loadImage(game.getImageUrl(), imageViewBanner);
@@ -244,8 +251,73 @@ public class GameDetailActivity extends AppCompatActivity {
     }
 
     private void onBuyClicked() {
-        // TODO: Implement purchase flow
-        Toast.makeText(this, "Purchase feature coming soon!", Toast.LENGTH_SHORT).show();
+        if (!TokenManager.getInstance().isLoggedIn()) {
+            Toast.makeText(this, R.string.login_required, Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
+            return;
+        }
+
+        if (currentGame == null) return;
+
+        double price = currentGame.getEffectivePrice();
+        String gameName = currentGame.getName();
+
+        // Show payment method dialog
+        String[] paymentMethods = {"Wallet", "Credit Card", "PayPal"};
+        String[] paymentMethodValues = {"Wallet", "CreditCard", "PayPal"};
+
+        new AlertDialog.Builder(this, R.style.Theme_GameStore_Dialog)
+                .setTitle(R.string.select_payment_method)
+                .setItems(paymentMethods, (dialog, which) -> {
+                    String selectedMethod = paymentMethodValues[which];
+                    showConfirmPurchaseDialog(gameName, price, selectedMethod);
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showConfirmPurchaseDialog(String gameName, double price, String paymentMethod) {
+        String message = getString(R.string.confirm_purchase_message, gameName, price, paymentMethod);
+
+        new AlertDialog.Builder(this, R.style.Theme_GameStore_Dialog)
+                .setTitle(R.string.confirm_purchase)
+                .setMessage(message)
+                .setPositiveButton(R.string.buy_now, (dialog, which) -> processPurchase(paymentMethod))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void processPurchase(String paymentMethod) {
+        if (currentGame == null) return;
+
+        buttonBuy.setEnabled(false);
+        buttonBuy.setText(R.string.processing);
+
+        customerRepository.createOrder(currentGame.getId(), paymentMethod, new CustomerRepository.OrderCallback() {
+            @Override
+            public void onSuccess(@NonNull OrderDto order) {
+                runOnUiThread(() -> {
+                    buttonBuy.setEnabled(true);
+                    buttonBuy.setText(R.string.purchased);
+                    buttonBuy.setEnabled(false);
+                    
+                    new AlertDialog.Builder(GameDetailActivity.this, R.style.Theme_GameStore_Dialog)
+                            .setTitle(R.string.purchase_success)
+                            .setMessage(getString(R.string.purchase_success_message, currentGame.getName()))
+                            .setPositiveButton(R.string.close, null)
+                            .show();
+                });
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                runOnUiThread(() -> {
+                    buttonBuy.setEnabled(true);
+                    buttonBuy.setText(R.string.buy_now);
+                    Toast.makeText(GameDetailActivity.this, message, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
 
     private void onSaveClicked() {

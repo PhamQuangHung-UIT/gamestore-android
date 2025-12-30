@@ -41,16 +41,15 @@ public class AuthRepository {
         });
     }
 
-    public void register(String email, String password, String username, AuthCallback callback) {
-        RegisterRequest request = new RegisterRequest(email, password, username);
+    public void register(String email, String password, String username, String phoneNumber, AuthCallback callback) {
+        RegisterRequest request = new RegisterRequest(email, password, username, phoneNumber);
 
         RetrofitClient.getAuthApi().register(request).enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    LoginResponse loginResponse = response.body();
-                    saveSession(loginResponse);
-                    callback.onSuccess(loginResponse);
+                    // Don't save session - user should login after registration
+                    callback.onSuccess(response.body());
                 } else {
                     callback.onError(parseError(response));
                 }
