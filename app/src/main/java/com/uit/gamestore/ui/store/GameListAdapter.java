@@ -90,6 +90,7 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         
         // Set click listener on the whole item
         holder.itemView.setOnClickListener(v -> {
+            android.util.Log.d("GameListAdapter", "Item clicked: " + game.getName());
             if (clickListener != null) {
                 clickListener.onGameClick(game);
             }
@@ -100,6 +101,7 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
             HorizontalGameViewHolder hHolder = (HorizontalGameViewHolder) holder;
             if (hHolder.buttonSave != null) {
                 hHolder.buttonSave.setOnClickListener(v -> {
+                    android.util.Log.d("GameListAdapter", "Save button clicked: " + game.getName());
                     if (saveClickListener != null) {
                         saveClickListener.onSaveClick(game);
                     }
@@ -107,9 +109,10 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
             }
         }
 
-        // Make sure buttons don't block item click
+        // Make purchase button also trigger game click
         if (holder.buttonPurchase != null) {
             holder.buttonPurchase.setOnClickListener(v -> {
+                android.util.Log.d("GameListAdapter", "Purchase button clicked: " + game.getName());
                 if (clickListener != null) {
                     clickListener.onGameClick(game);
                 }

@@ -69,13 +69,18 @@ public class StoreFragment extends Fragment {
         }
 
         initViews(root);
-        setupToolbarButtons();
         setupRecyclerViews();
         setupSwipeRefresh();
         observeViewModel();
         loadData();
 
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupToolbarButtons();
     }
 
     private void initViews(View root) {
@@ -313,17 +318,83 @@ public class StoreFragment extends Fragment {
     }
 
     private void onGameClick(GameDto game) {
-        if (game != null && game.getId() != null && getContext() != null) {
-            startActivity(GameDetailActivity.newIntent(requireContext(), game.getId()));
+        android.util.Log.d("StoreFragment", "onGameClick called: " + (game != null ? game.getName() : "null"));
+        android.util.Log.d("StoreFragment", "Game ID: " + (game != null ? game.getId() : "null"));
+        android.util.Log.d("StoreFragment", "Context: " + (getContext() != null ? "not null" : "null"));
+        
+        if (game == null) {
+            android.util.Log.e("StoreFragment", "Game is null!");
+            return;
+        }
+        
+        String gameId = game.getId();
+        if (gameId == null || gameId.isEmpty()) {
+            android.util.Log.e("StoreFragment", "Game ID is null or empty!");
+            Toast.makeText(requireContext(), "Error: Game ID not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (getContext() == null) {
+            android.util.Log.e("StoreFragment", "Context is null!");
+            return;
+        }
+        
+        try {
+            android.util.Log.d("StoreFragment", "Starting GameDetailActivity with id: " + gameId);
+            Intent intent = GameDetailActivity.newIntent(requireContext(), gameId);
+            startActivity(intent);
+            android.util.Log.d("StoreFragment", "startActivity called successfully");
+        } catch (Exception e) {
+            android.util.Log.e("StoreFragment", "Error starting activity: " + e.getMessage(), e);
+            Toast.makeText(requireContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void onSaveClick(GameDto game) {
-        if (!TokenManager.getInstance().isLoggedIn()) {
+        android.util.Log.d("StoreFragment", "onSaveClick called: " + (game != null ? game.getName() : "null"));
+        
+        if (game == null) {
+            android.util.Log.e("StoreFragment", "Game is null in onSaveClick!");
+            return;
+        }
+        
+        String gameId = game.getId();
+        android.util.Log.d("StoreFragment", "Game ID for save: " + gameId);
+        
+        boolean isLoggedIn = TokenManager.getInstance().isLoggedIn();
+        String token = TokenManager.getInstance().getToken();
+        android.util.Log.d("StoreFragment", "isLoggedIn: " + isLoggedIn + ", token: " + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "null"));
+        
+        if (!isLoggedIn) {
+            android.util.Log.d("StoreFragment", "User not logged in, redirecting to login");
             Toast.makeText(requireContext(), R.string.login_required, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(requireContext(), LoginActivity.class));
             return;
         }
-        Toast.makeText(requireContext(), R.string.game_saved, Toast.LENGTH_SHORT).show();
+
+        if (gameId == null || gameId.isEmpty()) {
+            android.util.Log.e("StoreFragment", "Game ID is null or empty for save!");
+            Toast.makeText(requireContext(), "Error: Game ID not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        android.util.Log.d("StoreFragment", "Calling addToWishlist API for game: " + gameId);
+        storeViewModel.addToWishlist(gameId, new StoreViewModel.WishlistCallback() {
+            @Override
+            public void onSuccess(String message) {
+                android.util.Log.d("StoreFragment", "Wishlist success: " + message);
+                if (getContext() != null) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                android.util.Log.e("StoreFragment", "Wishlist error: " + error);
+                if (getContext() != null) {
+                    Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.uit.gamestore.data.remote.dto.GameDto;
+import com.uit.gamestore.data.repository.CustomerRepository;
 import com.uit.gamestore.data.repository.GameRepository;
 
 import java.util.ArrayList;
@@ -18,6 +19,11 @@ public class StoreViewModel extends ViewModel {
         NEWEST, PRICE_LOW_TO_HIGH, PRICE_HIGH_TO_LOW, NAME_AZ
     }
 
+    public interface WishlistCallback {
+        void onSuccess(String message);
+        void onError(String error);
+    }
+
     private final MutableLiveData<List<GameDto>> allGames = new MutableLiveData<>();
     private final MutableLiveData<List<GameDto>> saleGames = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(true);
@@ -25,6 +31,7 @@ public class StoreViewModel extends ViewModel {
     private final MutableLiveData<String> activeFilter = new MutableLiveData<>();
 
     private final GameRepository gameRepository = new GameRepository();
+    private final CustomerRepository customerRepository = new CustomerRepository();
 
     // Store original data for filtering/sorting
     private List<GameDto> originalGames = new ArrayList<>();
@@ -207,5 +214,19 @@ public class StoreViewModel extends ViewModel {
 
     public SortOption getCurrentSort() {
         return currentSort;
+    }
+
+    public void addToWishlist(String gameId, WishlistCallback callback) {
+        customerRepository.addToWishlist(gameId, new CustomerRepository.WishlistActionCallback() {
+            @Override
+            public void onSuccess(String message) {
+                callback.onSuccess(message);
+            }
+
+            @Override
+            public void onError(String message) {
+                callback.onError(message);
+            }
+        });
     }
 }

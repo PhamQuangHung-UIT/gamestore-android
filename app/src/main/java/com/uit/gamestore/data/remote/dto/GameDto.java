@@ -4,6 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class GameDto {
     @SerializedName("_id")
+    private String _id;
+
+    @SerializedName("id")
     private String id;
 
     @SerializedName("name")
@@ -55,7 +58,8 @@ public class GameDto {
     private String updatedAt;
 
     public String getId() {
-        return id;
+        // Return _id if available, otherwise return id
+        return _id != null ? _id : id;
     }
 
     public String getName() {

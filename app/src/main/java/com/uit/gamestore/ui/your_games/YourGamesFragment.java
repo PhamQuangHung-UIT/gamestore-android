@@ -7,27 +7,39 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.local.TokenManager;
+import com.uit.gamestore.data.remote.dto.GameDto;
+import com.uit.gamestore.data.repository.CustomerRepository;
+import com.uit.gamestore.ui.game_detail.GameDetailActivity;
 import com.uit.gamestore.ui.login.LoginActivity;
+import com.uit.gamestore.ui.store.CategorySection;
+import com.uit.gamestore.ui.store.GameListAdapter;
+
+import java.util.List;
 
 public class YourGamesFragment extends Fragment {
 
-    private YourGamesViewModel viewModel;
     private LinearLayout loginRequiredLayout;
     private View contentLayout;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(YourGamesViewModel.class);
-    }
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recyclerView;
+    private TextView emptyStateText;
+    private ProgressBar progressBar;
+    
+    private GameListAdapter adapter;
+    private final CustomerRepository customerRepository = new CustomerRepository();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -38,16 +50,8 @@ public class YourGamesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
-        loginRequiredLayout = view.findViewById(R.id.loginRequiredLayout);
-        contentLayout = view.findViewById(R.id.contentLayout);
-        Button loginButton = view.findViewById(R.id.buttonLogin);
-        
-        if (loginButton != null) {
-            loginButton.setOnClickListener(v -> {
-                startActivity(new Intent(requireContext(), LoginActivity.class));
-            });
-        }
+        initViews(view);
+        setupRecyclerView();
     }
 
     @Override
@@ -56,14 +60,104 @@ public class YourGamesFragment extends Fragment {
         updateLoginState();
     }
 
+    private void initViews(View view) {
+        loginRequiredLayout = view.findViewById(R.id.loginRequiredLayout);
+        contentLayout = view.findViewById(R.id.contentLayout);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        recyclerView = view.findViewById(R.id.recyclerViewWishlist);
+        emptyStateText = view.findViewById(R.id.emptyStateText);
+        progressBar = view.findViewById(R.id.progressBar);
+        
+        Button loginButton = view.findViewById(R.id.buttonLogin);
+        if (loginButton != null) {
+            loginButton.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), LoginActivity.class));
+            });
+        }
+
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setOnRefreshListener(this::loadWishlist);
+            swipeRefreshLayout.setColorSchemeResources(R.color.teal_200, R.color.teal_700);
+        }
+    }
+
+    private void setupRecyclerView() {
+        if (recyclerView == null) return;
+        
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new GameListAdapter(CategorySection.DIRECTION_VERTICAL, requireContext());
+        adapter.setOnGameClickListener(this::onGameClick);
+        recyclerView.setAdapter(adapter);
+    }
+
     private void updateLoginState() {
         boolean isLoggedIn = TokenManager.getInstance().isLoggedIn();
+        android.util.Log.d("YourGamesFragment", "updateLoginState - isLoggedIn: " + isLoggedIn);
         
         if (loginRequiredLayout != null) {
             loginRequiredLayout.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
         }
         if (contentLayout != null) {
             contentLayout.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
+        }
+        
+        if (isLoggedIn) {
+            loadWishlist();
+        }
+    }
+
+    private void loadWishlist() {
+        android.util.Log.d("YourGamesFragment", "loadWishlist called");
+        
+        if (progressBar != null && adapter.getItemCount() == 0) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        customerRepository.getWishlist(new CustomerRepository.WishlistCallback() {
+            @Override
+            public void onSuccess(@NonNull List<GameDto> games) {
+                android.util.Log.d("YourGamesFragment", "Wishlist loaded: " + games.size() + " games");
+                
+                if (getContext() == null) return;
+                
+                if (swipeRefreshLayout != null) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
+                
+                adapter.submitList(games);
+                
+                if (emptyStateText != null) {
+                    emptyStateText.setVisibility(games.isEmpty() ? View.VISIBLE : View.GONE);
+                }
+                if (recyclerView != null) {
+                    recyclerView.setVisibility(games.isEmpty() ? View.GONE : View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                android.util.Log.e("YourGamesFragment", "Wishlist error: " + message);
+                
+                if (getContext() == null) return;
+                
+                if (swipeRefreshLayout != null) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
+                
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void onGameClick(GameDto game) {
+        if (game != null && game.getId() != null && getContext() != null) {
+            startActivity(GameDetailActivity.newIntent(requireContext(), game.getId()));
         }
     }
 }

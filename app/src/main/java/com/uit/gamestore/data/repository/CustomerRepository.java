@@ -8,6 +8,7 @@ import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.remote.dto.OrderDto;
 import com.uit.gamestore.data.remote.dto.OrderRequest;
+import com.uit.gamestore.data.remote.dto.WishlistResponse;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +43,16 @@ public class CustomerRepository {
 
     public interface SimpleCallback {
         void onSuccess();
+        void onError(@NonNull String message);
+    }
+
+    public interface WishlistCallback {
+        void onSuccess(@NonNull List<GameDto> games);
+        void onError(@NonNull String message);
+    }
+
+    public interface WishlistActionCallback {
+        void onSuccess(@NonNull String message);
         void onError(@NonNull String message);
     }
 
@@ -182,6 +193,61 @@ public class CustomerRepository {
         });
     }
 
+    public void getWishlist(@NonNull WishlistCallback callback) {
+        RetrofitClient.getCustomerApi().getWishlist().enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<List<GameDto>> call, @NonNull Response<List<GameDto>> response) {
+                if (response.isSuccessful()) {
+                    List<GameDto> games = response.body();
+                    callback.onSuccess(games != null ? games : Collections.emptyList());
+                } else {
+                    callback.onError(parseError(response, "Failed to load wishlist"));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<GameDto>> call, @NonNull Throwable t) {
+                callback.onError("Network error: " + (t.getMessage() != null ? t.getMessage() : "Unknown error"));
+            }
+        });
+    }
+
+    public void addToWishlist(@NonNull String gameId, @NonNull WishlistActionCallback callback) {
+        RetrofitClient.getCustomerApi().addToWishlist(gameId).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<WishlistResponse> call, @NonNull Response<WishlistResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().getMessage());
+                } else {
+                    callback.onError(parseError(response, "Failed to add to wishlist"));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<WishlistResponse> call, @NonNull Throwable t) {
+                callback.onError("Network error: " + (t.getMessage() != null ? t.getMessage() : "Unknown error"));
+            }
+        });
+    }
+
+    public void removeFromWishlist(@NonNull String gameId, @NonNull WishlistActionCallback callback) {
+        RetrofitClient.getCustomerApi().removeFromWishlist(gameId).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<WishlistResponse> call, @NonNull Response<WishlistResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().getMessage());
+                } else {
+                    callback.onError(parseError(response, "Failed to remove from wishlist"));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<WishlistResponse> call, @NonNull Throwable t) {
+                callback.onError("Network error: " + (t.getMessage() != null ? t.getMessage() : "Unknown error"));
+            }
+        });
+    }
+
     @NonNull
     private String parseError(@NonNull Response<?> response, @NonNull String defaultMessage) {
         try {
@@ -202,6 +268,8 @@ public class CustomerRepository {
             return "You don't have permission to perform this action";
         } else if (code == 404) {
             return "Resource not found";
+        } else if (code == 409) {
+            return "Game is already in your wishlist";
         } else if (code >= 500) {
             return "Server error. Please try again later.";
         }

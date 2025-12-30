@@ -48,11 +48,18 @@
     <string name="profile">Profile</string>
     <string name="balance">Balance</string>
     <string name="logout">Logout</string>
+    <string name="logged_out">Logged out successfully</string>
     <string name="login_required">Please login to continue</string>
     <string name="login_required_title">Login Required</string>
     <string name="login_required_saved_games">Sign in to save games and access them later</string>
-    <string name="login_required_your_games">Sign in to view your purchased games</string>
+    <string name="login_required_your_games">Sign in to view your wishlist</string>
+    <string name="login_to_view_profile">Sign in to view your profile</string>
     <string name="no_saved_games">No saved games yet</string>
+    <string name="my_wishlist">My Wishlist</string>
+    <string name="order_history">Order History</string>
+    <string name="about">About</string>
+    <string name="top_up">Top Up</string>
+    <string name="game_removed">Game removed from wishlist</string>
 
     <!-- General -->
     <string name="unknown">Unknown</string>

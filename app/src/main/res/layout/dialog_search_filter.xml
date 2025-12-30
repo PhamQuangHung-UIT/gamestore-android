@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="@string/all"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -88,7 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/genre_action"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -97,7 +97,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/genre_adventure"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -106,7 +106,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/genre_rpg"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -115,7 +115,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/genre_strategy"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -124,7 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/genre_sports"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
     </com.google.android.material.chip.ChipGroup>
 
@@ -152,7 +152,7 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="@string/sort_newest"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -161,7 +161,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sort_price_low"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -170,7 +170,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sort_price_high"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
 
         <com.google.android.material.chip.Chip
@@ -179,7 +179,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sort_name"
-            android:textColor="@color/white"
+            android:textColor="@color/chip_text_color"
             app:chipBackgroundColor="@color/chip_background_color" />
     </com.google.android.material.chip.ChipGroup>
 
@@ -199,6 +199,7 @@
             android:layout_weight="1"
             android:text="@string/reset"
             android:textAllCaps="false"
+            android:textColor="@color/white"
             app:strokeColor="@color/gray" />
 
         <com.google.android.material.button.MaterialButton
