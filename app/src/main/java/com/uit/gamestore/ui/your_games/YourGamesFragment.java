@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.uit.gamestore.MainActivity;
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.local.TokenManager;
 import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
@@ -48,6 +49,10 @@ public class YourGamesFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        // Hide search icon on this page
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).hideSearchIcon();
+        }
         return inflater.inflate(R.layout.fragment_your_games, container, false);
     }
 

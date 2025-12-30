@@ -64,8 +64,9 @@ public class StoreFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_store, container, false);
 
+        // Show search icon on Store page
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).showStoreToolbar();
+            ((MainActivity) getActivity()).showSearchIcon();
         }
 
         initViews(root);
@@ -258,6 +259,17 @@ public class StoreFragment extends Fragment {
     }
 
     private void loadData() {
+        // Show loading immediately
+        if (loadingLayout != null) {
+            loadingLayout.setVisibility(View.VISIBLE);
+        }
+        if (contentScrollView != null) {
+            contentScrollView.setVisibility(View.GONE);
+        }
+        if (errorLayout != null) {
+            errorLayout.setVisibility(View.GONE);
+        }
+        
         storeViewModel.loadAllGames();
         storeViewModel.loadSaleGames();
     }

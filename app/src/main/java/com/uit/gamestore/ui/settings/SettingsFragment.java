@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.uit.gamestore.MainActivity;
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.local.TokenManager;
 import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
@@ -42,6 +43,10 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        // Hide search icon on this page
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).hideSearchIcon();
+        }
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
