@@ -11,7 +11,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.uit.gamestore.databinding.ActivityMainBinding;
 import com.uit.gamestore.ui.store.GameStoreToolbar;
 
 public class MainActivity extends AppCompatActivity {

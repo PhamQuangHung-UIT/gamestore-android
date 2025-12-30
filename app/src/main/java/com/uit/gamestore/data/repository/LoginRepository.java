@@ -8,8 +8,9 @@ import com.uit.gamestore.domain.model.User;
 
 public class LoginRepository {
 
+    private final MockUserAPI api = MockUserAPI.getInstance();
+
     public Result<User> login(@NonNull String email, @NonNull String password) {
-        var api = new MockUserAPI();
         return api.login(email, password);
     }
 }

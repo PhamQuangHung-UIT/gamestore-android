@@ -6,8 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.uit.gamestore.MainActivity;
 import com.uit.gamestore.R;
-import com.uit.gamestore.ui.login.LoginActivity;
 
 public class LandingActivity extends AppCompatActivity {
     @Override
@@ -19,7 +19,7 @@ public class LandingActivity extends AppCompatActivity {
         var getStartedButton = findViewById(R.id.get_started_button);
 
         getStartedButton.setOnClickListener(view -> {
-            var intent = new Intent(this, LoginActivity.class);
+            var intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
         });
