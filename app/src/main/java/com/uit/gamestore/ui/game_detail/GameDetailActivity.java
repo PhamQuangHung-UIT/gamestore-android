@@ -42,6 +42,7 @@ public class GameDetailActivity extends AppCompatActivity {
     private ReviewAdapter reviewAdapter;
     private final CustomerRepository customerRepository = new CustomerRepository();
     private GameDto currentGame;
+    private boolean isOwned = false;
 
     // Views
     private ImageView imageViewBanner;
@@ -90,10 +91,38 @@ public class GameDetailActivity extends AppCompatActivity {
 
         viewModel.loadGame(gameId);
         
-        // Load wishlist if user is logged in
+        // Load wishlist and check ownership if user is logged in
         if (TokenManager.getInstance().isLoggedIn()) {
             viewModel.loadWishlist();
+            checkOwnership(gameId);
         }
+    }
+
+    private void checkOwnership(String gameId) {
+        customerRepository.getLibrary(new CustomerRepository.LibraryCallback() {
+            @Override
+            public void onSuccess(@NonNull List<GameDto> games) {
+                for (GameDto game : games) {
+                    if (game != null && gameId.equals(game.getId())) {
+                        isOwned = true;
+                        runOnUiThread(() -> setOwnedState());
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                // Silently fail
+            }
+        });
+    }
+
+    private void setOwnedState() {
+        isOwned = true;
+        buttonBuy.setText(R.string.owned);
+        buttonBuy.setEnabled(false);
+        buttonBuy.setAlpha(0.7f);
     }
 
     private void initViews() {
@@ -251,6 +280,12 @@ public class GameDetailActivity extends AppCompatActivity {
     }
 
     private void onBuyClicked() {
+        // Check if already owned
+        if (isOwned) {
+            Toast.makeText(this, R.string.already_owned, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (!TokenManager.getInstance().isLoggedIn()) {
             Toast.makeText(this, R.string.login_required, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, LoginActivity.class));
@@ -262,13 +297,25 @@ public class GameDetailActivity extends AppCompatActivity {
         double price = currentGame.getEffectivePrice();
         String gameName = currentGame.getName();
 
-        // Show payment method dialog
+        // Show payment method dialog with custom adapter for white text
         String[] paymentMethods = {"Wallet", "Credit Card", "PayPal"};
         String[] paymentMethodValues = {"Wallet", "CreditCard", "PayPal"};
 
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
+                this, android.R.layout.simple_list_item_1, paymentMethods) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull android.view.ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = view.findViewById(android.R.id.text1);
+                textView.setTextColor(android.graphics.Color.WHITE);
+                return view;
+            }
+        };
+
         new AlertDialog.Builder(this, R.style.Theme_GameStore_Dialog)
                 .setTitle(R.string.select_payment_method)
-                .setItems(paymentMethods, (dialog, which) -> {
+                .setAdapter(adapter, (dialog, which) -> {
                     String selectedMethod = paymentMethodValues[which];
                     showConfirmPurchaseDialog(gameName, price, selectedMethod);
                 })
@@ -297,9 +344,7 @@ public class GameDetailActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull OrderDto order) {
                 runOnUiThread(() -> {
-                    buttonBuy.setEnabled(true);
-                    buttonBuy.setText(R.string.purchased);
-                    buttonBuy.setEnabled(false);
+                    setOwnedState();
                     
                     new AlertDialog.Builder(GameDetailActivity.this, R.style.Theme_GameStore_Dialog)
                             .setTitle(R.string.purchase_success)
@@ -314,7 +359,14 @@ public class GameDetailActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     buttonBuy.setEnabled(true);
                     buttonBuy.setText(R.string.buy_now);
-                    Toast.makeText(GameDetailActivity.this, message, Toast.LENGTH_LONG).show();
+                    
+                    // Check if error is "already own"
+                    if (message.contains("already own")) {
+                        setOwnedState();
+                        Toast.makeText(GameDetailActivity.this, R.string.already_owned, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(GameDetailActivity.this, message, Toast.LENGTH_LONG).show();
+                    }
                 });
             }
         });

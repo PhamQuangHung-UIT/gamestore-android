@@ -46,6 +46,8 @@
     <string name="confirm_purchase_message">Purchase \"%1$s\" for $%2$.2f using %3$s?</string>
     <string name="processing">Processing…</string>
     <string name="purchased">Purchased</string>
+    <string name="owned">Owned</string>
+    <string name="already_owned">You already own this game</string>
     <string name="purchase_success">Purchase Successful!</string>
     <string name="purchase_success_message">\"%1$s\" has been added to your library. Enjoy your game!</string>
     <string name="rating_format">%.1f ★</string>
@@ -72,6 +74,11 @@
     <string name="no_saved_games">No saved games yet</string>
     <string name="my_wishlist">My Wishlist</string>
     <string name="order_history">Order History</string>
+    <string name="no_orders">No orders yet</string>
+    <string name="order_id_format">Order #%1$s</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="total">Total</string>
+    <string name="game_key_format">Key: %1$s</string>
     <string name="about">About</string>
     <string name="about_text">Game Store v1.0.0\n\nYour ultimate destination for discovering and purchasing the best games. Browse thousands of titles across all genres, from action-packed adventures to relaxing puzzle games.\n\nFeatures:\n• Curated game collections\n• Secure payment processing\n• Wishlist management\n• User reviews and ratings\n• Regular sales and promotions\n\nDeveloped with ❤️ by UIT Team\n© 2025 Game Store. All rights reserved.</string>
     <string name="top_up">Top Up</string>

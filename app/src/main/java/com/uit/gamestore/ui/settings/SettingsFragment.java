@@ -22,6 +22,7 @@ import com.uit.gamestore.data.local.TokenManager;
 import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
 import com.uit.gamestore.data.repository.CustomerRepository;
 import com.uit.gamestore.ui.login.LoginActivity;
+import com.uit.gamestore.ui.orders.OrderHistoryActivity;
 
 import java.util.Locale;
 
@@ -96,6 +97,13 @@ public class SettingsFragment extends Fragment {
         View menuAbout = requireView().findViewById(R.id.menuAbout);
         if (menuAbout != null) {
             menuAbout.setOnClickListener(v -> showAboutDialog());
+        }
+
+        View menuOrders = requireView().findViewById(R.id.menuOrders);
+        if (menuOrders != null) {
+            menuOrders.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), OrderHistoryActivity.class));
+            });
         }
     }
 
