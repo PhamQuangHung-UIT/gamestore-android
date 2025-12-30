@@ -26,7 +26,7 @@ public class StoreViewModel extends ViewModel {
 
     private final MutableLiveData<List<GameDto>> allGames = new MutableLiveData<>();
     private final MutableLiveData<List<GameDto>> saleGames = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(true);
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<String> activeFilter = new MutableLiveData<>();
 

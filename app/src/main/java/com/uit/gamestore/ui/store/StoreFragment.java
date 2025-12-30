@@ -258,6 +258,17 @@ public class StoreFragment extends Fragment {
     }
 
     private void loadData() {
+        // Show loading immediately
+        if (loadingLayout != null) {
+            loadingLayout.setVisibility(View.VISIBLE);
+        }
+        if (contentScrollView != null) {
+            contentScrollView.setVisibility(View.GONE);
+        }
+        if (errorLayout != null) {
+            errorLayout.setVisibility(View.GONE);
+        }
+        
         storeViewModel.loadAllGames();
         storeViewModel.loadSaleGames();
     }
