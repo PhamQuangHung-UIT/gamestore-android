@@ -281,15 +281,28 @@ public class StoreFragment extends Fragment {
     private void onLoadingChanged(Boolean isLoading) {
         if (isLoading == null) return;
 
-        swipeRefreshLayout.setRefreshing(false);
-
         if (isLoading) {
             skeletonLayout.setVisibility(View.VISIBLE);
             contentScrollView.setVisibility(View.GONE);
             emptyStateAllGames.setVisibility(View.GONE);
+            errorLayout.setVisibility(View.GONE);
+            
+            // Start shimmer animation on skeleton views
+            android.view.animation.Animation shimmer = android.view.animation.AnimationUtils.loadAnimation(
+                    requireContext(), R.anim.shimmer);
+            for (int i = 0; i < skeletonLayout.getChildCount(); i++) {
+                View child = skeletonLayout.getChildAt(i);
+                child.startAnimation(shimmer);
+            }
         } else {
+            swipeRefreshLayout.setRefreshing(false);
             skeletonLayout.setVisibility(View.GONE);
             contentScrollView.setVisibility(View.VISIBLE);
+            
+            // Clear animations
+            for (int i = 0; i < skeletonLayout.getChildCount(); i++) {
+                skeletonLayout.getChildAt(i).clearAnimation();
+            }
         }
     }
 

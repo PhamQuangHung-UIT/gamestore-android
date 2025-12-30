@@ -249,8 +249,16 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
 
         @Override
         public void bind(@NonNull GameDto game, @NonNull Context context) {
-            super.bind(game, context);
+            bind(game, context, false);
+        }
 
+        @Override
+        public void bind(@NonNull GameDto game, @NonNull Context context, boolean isOwned) {
+            super.bind(game, context, isOwned);
+            loadBannerImage(game, context);
+        }
+
+        private void loadBannerImage(@NonNull GameDto game, @NonNull Context context) {
             if (banner == null) return;
 
             String imageUrl = game.getImageUrl();
