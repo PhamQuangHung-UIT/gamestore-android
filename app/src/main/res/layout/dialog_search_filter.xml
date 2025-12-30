@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_bottom_sheet"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/search_and_filter"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/buttonClose"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/close"
+            android:src="@drawable/ic_close_24dp"
+            app:tint="@color/gray" />
+    </LinearLayout>
+
+    <!-- Search Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/searchInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:hint="@string/search_hint"
+        app:boxBackgroundColor="@color/white_alpha100"
+        app:boxStrokeColor="@color/teal_200"
+        app:hintTextColor="@color/gray"
+        app:startIconDrawable="@drawable/ic_search_black_24dp"
+        app:startIconTint="@color/gray">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:textColor="@color/white" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Genre Filter -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/filter_by_genre"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupGenre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:singleSelection="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAll"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/all"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAction"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/genre_action"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAdventure"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/genre_adventure"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipRPG"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/genre_rpg"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipStrategy"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/genre_strategy"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSports"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/genre_sports"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- Sort Options -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/sort_by"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupSort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:singleSelection="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSortNewest"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/sort_newest"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSortPriceLow"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_price_low"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSortPriceHigh"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_price_high"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSortName"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_name"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/chip_background_color" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonReset"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="@string/reset"
+            android:textAllCaps="false"
+            app:strokeColor="@color/gray" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonApply"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/teal_200"
+            android:text="@string/apply"
+            android:textAllCaps="false"
+            android:textColor="@color/black" />
+    </LinearLayout>
+</LinearLayout>

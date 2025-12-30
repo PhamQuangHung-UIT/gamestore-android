@@ -59,9 +59,26 @@
     <string name="error_occurred">An error occurred</string>
     <string name="no_internet">No internet connection</string>
     <string name="search_games">Search Games</string>
-    <string name="search_hint">Enter game name...</string>
+    <string name="search_hint">Search games...</string>
     <string name="search">Search</string>
     <string name="cancel">Cancel</string>
     <string name="clear">Clear</string>
     <string name="game_saved">Game saved!</string>
+    <string name="close">Close</string>
+    <string name="search_and_filter">Search &amp; Filter</string>
+    <string name="filter_by_genre">Filter by Genre</string>
+    <string name="sort_by">Sort by</string>
+    <string name="all">All</string>
+    <string name="genre_action">Action</string>
+    <string name="genre_adventure">Adventure</string>
+    <string name="genre_rpg">RPG</string>
+    <string name="genre_strategy">Strategy</string>
+    <string name="genre_sports">Sports</string>
+    <string name="sort_newest">Newest</string>
+    <string name="sort_price_low">Price: Low to High</string>
+    <string name="sort_price_high">Price: High to Low</string>
+    <string name="sort_name">Name A-Z</string>
+    <string name="reset">Reset</string>
+    <string name="apply">Apply</string>
+    <string name="no_results">No games found</string>
 </resources>
