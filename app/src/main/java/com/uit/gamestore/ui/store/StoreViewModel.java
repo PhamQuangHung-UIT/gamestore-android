@@ -96,7 +96,54 @@ public class StoreViewModel extends ViewModel {
         currentSearch = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
         currentGenre = (genre != null && !genre.isEmpty() && !genre.equals("All")) ? genre : null;
         currentSort = sort != null ? sort : SortOption.NEWEST;
-        applyFiltersAndSort();
+        
+        // If we have search or genre filter, call API
+        if (currentSearch != null || currentGenre != null) {
+            searchFromApi();
+        } else {
+            applyFiltersAndSort();
+        }
+    }
+
+    private void searchFromApi() {
+        isLoading.setValue(true);
+        
+        gameRepository.searchGames(currentSearch, currentGenre, null, new GameRepository.GamesCallback() {
+            @Override
+            public void onSuccess(List<GameDto> games) {
+                List<GameDto> result = games != null ? new ArrayList<>(games) : new ArrayList<>();
+                
+                // Apply sorting to API results
+                switch (currentSort) {
+                    case PRICE_LOW_TO_HIGH:
+                        result.sort(Comparator.comparingDouble(GameDto::getEffectivePrice));
+                        break;
+                    case PRICE_HIGH_TO_LOW:
+                        result.sort((a, b) -> Double.compare(b.getEffectivePrice(), a.getEffectivePrice()));
+                        break;
+                    case NAME_AZ:
+                        result.sort((a, b) -> {
+                            String nameA = a.getName() != null ? a.getName() : "";
+                            String nameB = b.getName() != null ? b.getName() : "";
+                            return nameA.compareToIgnoreCase(nameB);
+                        });
+                        break;
+                    case NEWEST:
+                    default:
+                        break;
+                }
+                
+                updateActiveFilterText();
+                allGames.postValue(result);
+                isLoading.postValue(false);
+            }
+
+            @Override
+            public void onError(String message) {
+                error.postValue(message);
+                isLoading.postValue(false);
+            }
+        });
     }
 
     public void resetFilters() {

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import com.uit.gamestore.MainActivity;
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.remote.dto.LoginResponse;
 import com.uit.gamestore.domain.model.Result;
+import com.uit.gamestore.ui.register.RegisterActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -27,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
+    private TextView registerTextView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.editText_email);
         passwordEditText = findViewById(R.id.editText_password);
         loginButton = findViewById(R.id.button_login);
+        registerTextView = findViewById(R.id.textView_register);
     }
 
     private void setupObservers() {
@@ -71,6 +75,12 @@ public class LoginActivity extends AppCompatActivity {
                 viewModel.setPassword(editable.toString());
             }
         });
+
+        if (registerTextView != null) {
+            registerTextView.setOnClickListener(v -> {
+                startActivity(new Intent(this, RegisterActivity.class));
+            });
+        }
     }
 
     private void onLoadingChanged(Boolean isLoading) {

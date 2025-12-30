@@ -158,7 +158,12 @@ public class GameDetailActivity extends AppCompatActivity {
         // Rating
         Double rating = game.getAverageRating();
         if (rating != null && rating > 0) {
-            textViewRating.setText(String.format(Locale.getDefault(), "%.1f ★", rating));
+            // Show as integer if it's a whole number, otherwise show one decimal
+            if (rating == Math.floor(rating)) {
+                textViewRating.setText(String.format(Locale.getDefault(), "%.0f ★", rating));
+            } else {
+                textViewRating.setText(String.format(Locale.getDefault(), "%.1f ★", rating));
+            }
             textViewRating.setVisibility(View.VISIBLE);
         } else {
             textViewRating.setVisibility(View.GONE);

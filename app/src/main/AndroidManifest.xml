@@ -26,6 +26,7 @@
         </activity>
         <activity android:name=".ui.landing.LandingActivity" />
         <activity android:name=".ui.login.LoginActivity" />
+        <activity android:name=".ui.register.RegisterActivity" />
         <activity
             android:name=".ui.game_detail.GameDetailActivity"
             android:parentActivityName=".MainActivity"

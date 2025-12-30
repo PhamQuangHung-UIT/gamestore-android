@@ -12,8 +12,14 @@ public class ReviewDto {
     @SerializedName("comment")
     private String comment;
 
+    @SerializedName("reviewText")
+    private String reviewText;
+
     @SerializedName("customerId")
     private CustomerInfo customer;
+
+    @SerializedName("customer")
+    private CustomerInfo customerObj;
 
     @SerializedName("gameId")
     private String gameId;
@@ -33,11 +39,13 @@ public class ReviewDto {
     }
 
     public String getComment() {
-        return comment;
+        // Return reviewText if comment is null
+        return comment != null ? comment : reviewText;
     }
 
     public CustomerInfo getCustomer() {
-        return customer;
+        // Return customerObj if customer is null
+        return customer != null ? customer : customerObj;
     }
 
     public String getGameId() {
@@ -52,18 +60,37 @@ public class ReviewDto {
         return updatedAt;
     }
 
+    // Factory method to create ReviewDto from GameDto.ReviewInfo
+    public static ReviewDto fromGameReviewInfo(GameDto.ReviewInfo reviewInfo) {
+        ReviewDto dto = new ReviewDto();
+        dto.id = reviewInfo.getId();
+        dto.rating = reviewInfo.getRating();
+        dto.reviewText = reviewInfo.getReviewText();
+        dto.createdAt = reviewInfo.getCreatedAt();
+        if (reviewInfo.getCustomer() != null) {
+            dto.customerObj = new CustomerInfo();
+            dto.customerObj.id = reviewInfo.getCustomer().getId();
+            dto.customerObj.username = reviewInfo.getCustomer().getUsername();
+            dto.customerObj.email = reviewInfo.getCustomer().getEmail();
+        }
+        return dto;
+    }
+
     public static class CustomerInfo {
         @SerializedName("_id")
-        private String id;
+        String id;
+
+        @SerializedName("id") 
+        String idAlt;
 
         @SerializedName("username")
-        private String username;
+        String username;
 
         @SerializedName("email")
-        private String email;
+        String email;
 
         public String getId() {
-            return id;
+            return id != null ? id : idAlt;
         }
 
         public String getUsername() {

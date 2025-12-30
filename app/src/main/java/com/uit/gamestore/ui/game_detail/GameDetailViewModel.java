@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.uit.gamestore.data.remote.RetrofitClient;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.remote.dto.ReviewDto;
 import com.uit.gamestore.data.repository.CustomerRepository;
@@ -15,10 +14,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class GameDetailViewModel extends ViewModel {
 
@@ -50,7 +45,17 @@ public class GameDetailViewModel extends ViewModel {
             public void onSuccess(GameDto gameDto) {
                 game.postValue(gameDto);
                 isLoading.postValue(false);
-                loadReviews(gameId);
+                // Use reviews from game response if available
+                if (gameDto.getReviews() != null && !gameDto.getReviews().isEmpty()) {
+                    // Convert GameDto.ReviewInfo to ReviewDto format for adapter
+                    java.util.List<ReviewDto> reviewList = new java.util.ArrayList<>();
+                    for (GameDto.ReviewInfo reviewInfo : gameDto.getReviews()) {
+                        reviewList.add(ReviewDto.fromGameReviewInfo(reviewInfo));
+                    }
+                    reviews.postValue(reviewList);
+                } else {
+                    reviews.postValue(Collections.emptyList());
+                }
             }
 
             @Override
@@ -134,26 +139,6 @@ public class GameDetailViewModel extends ViewModel {
 
     public void clearSaveMessage() {
         saveMessage.setValue(null);
-    }
-
-    private void loadReviews(@NonNull String gameId) {
-        RetrofitClient.getGameApi().getGameReviews(gameId, "date_desc")
-                .enqueue(new Callback<>() {
-                    @Override
-                    public void onResponse(@NonNull Call<List<ReviewDto>> call,
-                                           @NonNull Response<List<ReviewDto>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            reviews.postValue(response.body());
-                        } else {
-                            reviews.postValue(Collections.emptyList());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<List<ReviewDto>> call, @NonNull Throwable t) {
-                        reviews.postValue(Collections.emptyList());
-                    }
-                });
     }
 
     public void refresh() {

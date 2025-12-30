@@ -220,7 +220,8 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         public HorizontalGameViewHolder(@NonNull View itemView) {
             super(itemView);
             banner = itemView.findViewById(R.id.imageView_banner);
-            buttonSave = itemView.findViewById(R.id.button_savedGame);
+            // buttonSave was removed from layout
+            buttonSave = null;
         }
 
         @Override

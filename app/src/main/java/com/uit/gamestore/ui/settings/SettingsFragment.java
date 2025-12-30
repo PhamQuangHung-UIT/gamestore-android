@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.uit.gamestore.R;
@@ -91,6 +92,27 @@ public class SettingsFragment extends Fragment {
                 }
             });
         }
+
+        View menuAbout = requireView().findViewById(R.id.menuAbout);
+        if (menuAbout != null) {
+            menuAbout.setOnClickListener(v -> showAboutDialog());
+        }
+    }
+
+    private void showAboutDialog() {
+        // Create custom TextView with white text
+        TextView messageView = new TextView(requireContext());
+        messageView.setText(R.string.about_text);
+        messageView.setTextColor(android.graphics.Color.WHITE);
+        messageView.setPadding(48, 32, 48, 16);
+        messageView.setTextSize(14);
+        messageView.setLineSpacing(4, 1.2f);
+
+        new AlertDialog.Builder(requireContext(), R.style.Theme_GameStore_Dialog)
+                .setTitle(R.string.about)
+                .setView(messageView)
+                .setPositiveButton(R.string.close, null)
+                .show();
     }
 
     private void updateUI() {

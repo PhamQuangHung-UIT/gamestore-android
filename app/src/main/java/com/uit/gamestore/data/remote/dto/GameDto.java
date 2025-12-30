@@ -51,6 +51,12 @@ public class GameDto {
     @SerializedName("reviewCount")
     private Integer reviewCount;
 
+    @SerializedName("totalReviews")
+    private Integer totalReviews;
+
+    @SerializedName("reviews")
+    private java.util.List<ReviewInfo> reviews;
+
     @SerializedName("createdAt")
     private String createdAt;
 
@@ -115,7 +121,12 @@ public class GameDto {
     }
 
     public Integer getReviewCount() {
-        return reviewCount;
+        // Return totalReviews if available, otherwise reviewCount
+        return totalReviews != null ? totalReviews : reviewCount;
+    }
+
+    public java.util.List<ReviewInfo> getReviews() {
+        return reviews;
     }
 
     public String getCreatedAt() {
@@ -212,6 +223,72 @@ public class GameDto {
 
         public String getStatus() {
             return status;
+        }
+    }
+
+    public static class ReviewInfo {
+        @SerializedName("id")
+        private String id;
+
+        @SerializedName("customerId")
+        private String customerId;
+
+        @SerializedName("gameId")
+        private String gameId;
+
+        @SerializedName("reviewText")
+        private String reviewText;
+
+        @SerializedName("rating")
+        private int rating;
+
+        @SerializedName("createdAt")
+        private String createdAt;
+
+        @SerializedName("customer")
+        private CustomerInfo customer;
+
+        public String getId() {
+            return id;
+        }
+
+        public String getReviewText() {
+            return reviewText;
+        }
+
+        public int getRating() {
+            return rating;
+        }
+
+        public String getCreatedAt() {
+            return createdAt;
+        }
+
+        public CustomerInfo getCustomer() {
+            return customer;
+        }
+
+        public static class CustomerInfo {
+            @SerializedName("id")
+            private String id;
+
+            @SerializedName("username")
+            private String username;
+
+            @SerializedName("email")
+            private String email;
+
+            public String getId() {
+                return id;
+            }
+
+            public String getUsername() {
+                return username;
+            }
+
+            public String getEmail() {
+                return email;
+            }
         }
     }
 }
