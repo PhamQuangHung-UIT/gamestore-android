@@ -33,6 +33,7 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
     private final Context context;
     private OnGameClickListener clickListener;
     private OnSaveClickListener saveClickListener;
+    private java.util.Set<String> ownedGameIds = new java.util.HashSet<>();
 
     public interface OnGameClickListener {
         void onGameClick(GameDto game);
@@ -70,6 +71,11 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         this.saveClickListener = listener;
     }
 
+    public void setOwnedGameIds(java.util.Set<String> ownedIds) {
+        this.ownedGameIds = ownedIds != null ? ownedIds : new java.util.HashSet<>();
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public GameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -86,7 +92,8 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         GameDto game = getItem(position);
         if (game == null) return;
 
-        holder.bind(game, context);
+        boolean isOwned = ownedGameIds.contains(game.getId());
+        holder.bind(game, context, isOwned);
         
         // Set click listener on the whole item
         holder.itemView.setOnClickListener(v -> {
@@ -109,8 +116,8 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
             }
         }
 
-        // Make purchase button also trigger game click
-        if (holder.buttonPurchase != null) {
+        // Make purchase button also trigger game click (unless owned)
+        if (holder.buttonPurchase != null && !isOwned) {
             holder.buttonPurchase.setOnClickListener(v -> {
                 android.util.Log.d("GameListAdapter", "Purchase button clicked: " + game.getName());
                 if (clickListener != null) {
@@ -154,6 +161,10 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         }
 
         public void bind(@NonNull GameDto game, @NonNull Context context) {
+            bind(game, context, false);
+        }
+
+        public void bind(@NonNull GameDto game, @NonNull Context context, boolean isOwned) {
             // Set game name
             String name = game.getName();
             labelGameName.setText(name != null ? name : "Unknown Game");
@@ -197,18 +208,30 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
                 imageViewMinimumAge.setVisibility(View.GONE);
             }
 
-            bindPrice(game);
+            bindPrice(game, isOwned);
+        }
+
+        protected void bindPrice(@NonNull GameDto game, boolean isOwned) {
+            if (buttonPurchase == null) return;
+
+            if (isOwned) {
+                buttonPurchase.setText(R.string.owned);
+                buttonPurchase.setEnabled(false);
+                buttonPurchase.setAlpha(0.7f);
+            } else {
+                buttonPurchase.setEnabled(true);
+                buttonPurchase.setAlpha(1.0f);
+                double effectivePrice = game.getEffectivePrice();
+                if (effectivePrice <= 0) {
+                    buttonPurchase.setText(R.string.button_install);
+                } else {
+                    buttonPurchase.setText(formatPrice(effectivePrice, Locale.getDefault()));
+                }
+            }
         }
 
         protected void bindPrice(@NonNull GameDto game) {
-            if (buttonPurchase == null) return;
-
-            double effectivePrice = game.getEffectivePrice();
-            if (effectivePrice <= 0) {
-                buttonPurchase.setText(R.string.button_install);
-            } else {
-                buttonPurchase.setText(formatPrice(effectivePrice, Locale.getDefault()));
-            }
+            bindPrice(game, false);
         }
     }
 

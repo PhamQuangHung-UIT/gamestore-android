@@ -33,7 +33,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView textViewEmpty;
+    private View emptyStateLayout;
     private ProgressBar progressBar;
 
     private OrderAdapter adapter;
@@ -53,7 +53,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
     private void initViews() {
         recyclerView = findViewById(R.id.recyclerViewOrders);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        textViewEmpty = findViewById(R.id.textViewEmpty);
+        emptyStateLayout = findViewById(R.id.emptyStateLayout);
         progressBar = findViewById(R.id.progressBar);
 
         swipeRefreshLayout.setOnRefreshListener(this::loadOrders);
@@ -88,10 +88,10 @@ public class OrderHistoryActivity extends AppCompatActivity {
                     swipeRefreshLayout.setRefreshing(false);
 
                     if (orders.isEmpty()) {
-                        textViewEmpty.setVisibility(View.VISIBLE);
+                        emptyStateLayout.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     } else {
-                        textViewEmpty.setVisibility(View.GONE);
+                        emptyStateLayout.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
                         adapter.submitList(orders);
                     }

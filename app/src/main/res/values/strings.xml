@@ -75,10 +75,11 @@
     <string name="my_wishlist">My Wishlist</string>
     <string name="order_history">Order History</string>
     <string name="no_orders">No orders yet</string>
-    <string name="order_id_format">Order #%1$s</string>
+    <string name="no_orders_subtitle">Your purchase history will appear here</string>
+    <string name="order_id_format">#%1$s</string>
     <string name="payment_method">Payment Method</string>
     <string name="total">Total</string>
-    <string name="game_key_format">Key: %1$s</string>
+    <string name="game_key_format">%1$s</string>
     <string name="about">About</string>
     <string name="about_text">Game Store v1.0.0\n\nYour ultimate destination for discovering and purchasing the best games. Browse thousands of titles across all genres, from action-packed adventures to relaxing puzzle games.\n\nFeatures:\n• Curated game collections\n• Secure payment processing\n• Wishlist management\n• User reviews and ratings\n• Regular sales and promotions\n\nDeveloped with ❤️ by UIT Team\n© 2025 Game Store. All rights reserved.</string>
     <string name="top_up">Top Up</string>

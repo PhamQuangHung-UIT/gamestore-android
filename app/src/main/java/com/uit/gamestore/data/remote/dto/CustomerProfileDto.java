@@ -39,6 +39,12 @@ public class CustomerProfileDto {
     @SerializedName("description")
     private String description;
 
+    @SerializedName("wishlist")
+    private java.util.List<String> wishlist;
+
+    @SerializedName("ownedGameIds")
+    private java.util.List<String> ownedGameIds;
+
     @SerializedName("createdAt")
     private String createdAt;
 
@@ -91,6 +97,14 @@ public class CustomerProfileDto {
 
     public String getDescription() {
         return description;
+    }
+
+    public java.util.List<String> getWishlist() {
+        return wishlist;
+    }
+
+    public java.util.List<String> getOwnedGameIds() {
+        return ownedGameIds;
     }
 
     public String getCreatedAt() {

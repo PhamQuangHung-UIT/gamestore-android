@@ -25,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.local.TokenManager;
+import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.remote.dto.OrderDto;
 import com.uit.gamestore.data.remote.dto.ReviewDto;
@@ -99,15 +100,14 @@ public class GameDetailActivity extends AppCompatActivity {
     }
 
     private void checkOwnership(String gameId) {
-        customerRepository.getLibrary(new CustomerRepository.LibraryCallback() {
+        // Use profile's ownedGameIds for faster check
+        customerRepository.getProfile(new CustomerRepository.ProfileCallback() {
             @Override
-            public void onSuccess(@NonNull List<GameDto> games) {
-                for (GameDto game : games) {
-                    if (game != null && gameId.equals(game.getId())) {
-                        isOwned = true;
-                        runOnUiThread(() -> setOwnedState());
-                        break;
-                    }
+            public void onSuccess(@NonNull CustomerProfileDto profile) {
+                List<String> ownedIds = profile.getOwnedGameIds();
+                if (ownedIds != null && ownedIds.contains(gameId)) {
+                    isOwned = true;
+                    runOnUiThread(() -> setOwnedState());
                 }
             }
 

@@ -20,6 +20,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.uit.gamestore.R;
 import com.uit.gamestore.data.local.TokenManager;
+import com.uit.gamestore.data.remote.dto.CustomerProfileDto;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.repository.CustomerRepository;
 import com.uit.gamestore.ui.game_detail.GameDetailActivity;
@@ -27,7 +28,9 @@ import com.uit.gamestore.ui.login.LoginActivity;
 import com.uit.gamestore.ui.store.CategorySection;
 import com.uit.gamestore.ui.store.GameListAdapter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class YourGamesFragment extends Fragment {
 
@@ -40,6 +43,7 @@ public class YourGamesFragment extends Fragment {
     
     private GameListAdapter adapter;
     private final CustomerRepository customerRepository = new CustomerRepository();
+    private final Set<String> ownedGameIds = new HashSet<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -102,8 +106,34 @@ public class YourGamesFragment extends Fragment {
         }
         
         if (isLoggedIn) {
-            loadWishlist();
+            loadLibraryAndWishlist();
         }
+    }
+
+    private void loadLibraryAndWishlist() {
+        // Use profile's ownedGameIds for faster check
+        customerRepository.getProfile(new CustomerRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(@NonNull CustomerProfileDto profile) {
+                ownedGameIds.clear();
+                List<String> ownedIds = profile.getOwnedGameIds();
+                if (ownedIds != null) {
+                    ownedGameIds.addAll(ownedIds);
+                }
+                // Update adapter with owned IDs
+                if (adapter != null) {
+                    adapter.setOwnedGameIds(ownedGameIds);
+                }
+                // Then load wishlist
+                loadWishlist();
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                // Still load wishlist even if profile fails
+                loadWishlist();
+            }
+        });
     }
 
     private void loadWishlist() {
