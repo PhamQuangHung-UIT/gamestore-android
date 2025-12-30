@@ -11,82 +11,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Skeleton Loading State -->
+        <!-- Loading State with Spinner -->
         <LinearLayout
-            android:id="@+id/skeletonLayout"
+            android:id="@+id/loadingLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:orientation="vertical"
             android:paddingTop="?attr/actionBarSize"
             android:visibility="visible">
 
-            <!-- Sale Section Skeleton -->
-            <View
-                android:layout_width="120dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="16dp"
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:indeterminate="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/shape_skeleton" />
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="8dp">
-
-                    <View
-                        android:layout_width="280dp"
-                        android:layout_height="200dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:background="@drawable/shape_skeleton" />
-
-                    <View
-                        android:layout_width="280dp"
-                        android:layout_height="200dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:background="@drawable/shape_skeleton" />
-                </LinearLayout>
-            </HorizontalScrollView>
-
-            <!-- All Games Section Skeleton -->
-            <View
-                android:layout_width="100dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/shape_skeleton" />
-
-            <include
-                layout="@layout/item_game_skeleton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
-
-            <include
-                layout="@layout/item_game_skeleton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <include
-                layout="@layout/item_game_skeleton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <include
-                layout="@layout/item_game_skeleton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <include
-                layout="@layout/item_game_skeleton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:text="@string/loading"
+                android:textColor="@android:color/darker_gray" />
         </LinearLayout>
 
         <!-- Main Content -->

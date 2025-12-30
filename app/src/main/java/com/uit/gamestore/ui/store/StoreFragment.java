@@ -43,7 +43,7 @@ public class StoreFragment extends Fragment {
     // Views
     private SwipeRefreshLayout swipeRefreshLayout;
     private NestedScrollView contentScrollView;
-    private LinearLayout skeletonLayout;
+    private LinearLayout loadingLayout;
     private RecyclerView saleRecyclerView;
     private RecyclerView allGamesRecyclerView;
     private android.widget.TextView emptyStateSale;
@@ -86,7 +86,7 @@ public class StoreFragment extends Fragment {
     private void initViews(View root) {
         swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
         contentScrollView = root.findViewById(R.id.contentScrollView);
-        skeletonLayout = root.findViewById(R.id.skeletonLayout);
+        loadingLayout = root.findViewById(R.id.loadingLayout);
         saleRecyclerView = root.findViewById(R.id.recyclerView_christmasSpecial);
         allGamesRecyclerView = root.findViewById(R.id.recycleView_allGames);
         emptyStateSale = root.findViewById(R.id.emptyStateSale);
@@ -95,6 +95,11 @@ public class StoreFragment extends Fragment {
         errorMessage = root.findViewById(R.id.errorMessage);
         retryButton = root.findViewById(R.id.retryButton);
         chipActiveFilter = root.findViewById(R.id.chipActiveFilter);
+
+        // Ensure loading state is visible initially
+        loadingLayout.setVisibility(View.VISIBLE);
+        contentScrollView.setVisibility(View.GONE);
+        errorLayout.setVisibility(View.GONE);
 
         retryButton.setOnClickListener(v -> {
             errorLayout.setVisibility(View.GONE);
@@ -282,27 +287,14 @@ public class StoreFragment extends Fragment {
         if (isLoading == null) return;
 
         if (isLoading) {
-            skeletonLayout.setVisibility(View.VISIBLE);
+            loadingLayout.setVisibility(View.VISIBLE);
             contentScrollView.setVisibility(View.GONE);
             emptyStateAllGames.setVisibility(View.GONE);
             errorLayout.setVisibility(View.GONE);
-            
-            // Start shimmer animation on skeleton views
-            android.view.animation.Animation shimmer = android.view.animation.AnimationUtils.loadAnimation(
-                    requireContext(), R.anim.shimmer);
-            for (int i = 0; i < skeletonLayout.getChildCount(); i++) {
-                View child = skeletonLayout.getChildAt(i);
-                child.startAnimation(shimmer);
-            }
         } else {
             swipeRefreshLayout.setRefreshing(false);
-            skeletonLayout.setVisibility(View.GONE);
+            loadingLayout.setVisibility(View.GONE);
             contentScrollView.setVisibility(View.VISIBLE);
-            
-            // Clear animations
-            for (int i = 0; i < skeletonLayout.getChildCount(); i++) {
-                skeletonLayout.getChildAt(i).clearAnimation();
-            }
         }
     }
 
@@ -317,7 +309,7 @@ public class StoreFragment extends Fragment {
 
     private void onError(String message) {
         swipeRefreshLayout.setRefreshing(false);
-        skeletonLayout.setVisibility(View.GONE);
+        loadingLayout.setVisibility(View.GONE);
 
         if (message != null && !message.isEmpty()) {
             if (allGamesAdapter.getItemCount() == 0) {
@@ -331,10 +323,6 @@ public class StoreFragment extends Fragment {
     }
 
     private void onGameClick(GameDto game) {
-        android.util.Log.d("StoreFragment", "onGameClick called: " + (game != null ? game.getName() : "null"));
-        android.util.Log.d("StoreFragment", "Game ID: " + (game != null ? game.getId() : "null"));
-        android.util.Log.d("StoreFragment", "Context: " + (getContext() != null ? "not null" : "null"));
-        
         if (game == null) {
             android.util.Log.e("StoreFragment", "Game is null!");
             return;
@@ -343,69 +331,61 @@ public class StoreFragment extends Fragment {
         String gameId = game.getId();
         if (gameId == null || gameId.isEmpty()) {
             android.util.Log.e("StoreFragment", "Game ID is null or empty!");
-            Toast.makeText(requireContext(), "Error: Game ID not found", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) {
+                Toast.makeText(requireContext(), "Error: Game ID not found", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
         
-        if (getContext() == null) {
-            android.util.Log.e("StoreFragment", "Context is null!");
+        if (!isAdded() || getContext() == null) {
+            android.util.Log.e("StoreFragment", "Fragment not attached!");
             return;
         }
         
         try {
-            android.util.Log.d("StoreFragment", "Starting GameDetailActivity with id: " + gameId);
             Intent intent = GameDetailActivity.newIntent(requireContext(), gameId);
             startActivity(intent);
-            android.util.Log.d("StoreFragment", "startActivity called successfully");
         } catch (Exception e) {
             android.util.Log.e("StoreFragment", "Error starting activity: " + e.getMessage(), e);
-            Toast.makeText(requireContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            if (getContext() != null) {
+                Toast.makeText(requireContext(), "Error: " + (e.getMessage() != null ? e.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     private void onSaveClick(GameDto game) {
-        android.util.Log.d("StoreFragment", "onSaveClick called: " + (game != null ? game.getName() : "null"));
-        
         if (game == null) {
             android.util.Log.e("StoreFragment", "Game is null in onSaveClick!");
             return;
         }
         
+        if (!isAdded() || getContext() == null) return;
+        
         String gameId = game.getId();
-        android.util.Log.d("StoreFragment", "Game ID for save: " + gameId);
-        
-        boolean isLoggedIn = TokenManager.getInstance().isLoggedIn();
-        String token = TokenManager.getInstance().getToken();
-        android.util.Log.d("StoreFragment", "isLoggedIn: " + isLoggedIn + ", token: " + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "null"));
-        
-        if (!isLoggedIn) {
-            android.util.Log.d("StoreFragment", "User not logged in, redirecting to login");
-            Toast.makeText(requireContext(), R.string.login_required, Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(requireContext(), LoginActivity.class));
-            return;
-        }
-
         if (gameId == null || gameId.isEmpty()) {
             android.util.Log.e("StoreFragment", "Game ID is null or empty for save!");
             Toast.makeText(requireContext(), "Error: Game ID not found", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        if (!TokenManager.getInstance().isLoggedIn()) {
+            Toast.makeText(requireContext(), R.string.login_required, Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(requireContext(), LoginActivity.class));
+            return;
+        }
 
-        android.util.Log.d("StoreFragment", "Calling addToWishlist API for game: " + gameId);
         storeViewModel.addToWishlist(gameId, new StoreViewModel.WishlistCallback() {
             @Override
             public void onSuccess(String message) {
-                android.util.Log.d("StoreFragment", "Wishlist success: " + message);
-                if (getContext() != null) {
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(requireContext(), message != null ? message : "Added to wishlist", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onError(String error) {
-                android.util.Log.e("StoreFragment", "Wishlist error: " + error);
-                if (getContext() != null) {
-                    Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(requireContext(), error != null ? error : "Failed to add to wishlist", Toast.LENGTH_SHORT).show();
                 }
             }
         });

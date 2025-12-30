@@ -1,17 +1,24 @@
 package com.uit.gamestore.ui.orders;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -21,7 +28,9 @@ import com.uit.gamestore.R;
 import com.uit.gamestore.data.remote.dto.GameDto;
 import com.uit.gamestore.data.remote.dto.OrderDto;
 import com.uit.gamestore.data.repository.CustomerRepository;
+import com.uit.gamestore.util.DownloadHelper;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,16 +47,43 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
     private OrderAdapter adapter;
     private final CustomerRepository customerRepository = new CustomerRepository();
+    private DownloadHelper downloadHelper;
+    
+    // Pending download info
+    private GameDto pendingDownloadGame;
+    private Button pendingDownloadButton;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    if (pendingDownloadGame != null && pendingDownloadButton != null) {
+                        startDownload(pendingDownloadGame, pendingDownloadButton);
+                    }
+                } else {
+                    Toast.makeText(this, "Storage permission required for download", Toast.LENGTH_SHORT).show();
+                }
+                pendingDownloadGame = null;
+                pendingDownloadButton = null;
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_history);
 
+        downloadHelper = new DownloadHelper(this);
         initViews();
         setupToolbar();
         setupRecyclerView();
         loadOrders();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (downloadHelper != null) {
+            downloadHelper.cleanup();
+        }
     }
 
     private void initViews() {
@@ -76,38 +112,136 @@ public class OrderHistoryActivity extends AppCompatActivity {
     }
 
     private void loadOrders() {
-        if (!swipeRefreshLayout.isRefreshing()) {
+        if (isFinishing() || isDestroyed()) return;
+        
+        if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing() && progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
 
         customerRepository.getOrders(new CustomerRepository.OrdersCallback() {
             @Override
             public void onSuccess(@NonNull List<OrderDto> orders) {
+                if (isFinishing() || isDestroyed()) return;
                 runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    swipeRefreshLayout.setRefreshing(false);
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                    if (swipeRefreshLayout != null) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
 
                     if (orders.isEmpty()) {
-                        emptyStateLayout.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
+                        if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.VISIBLE);
+                        if (recyclerView != null) recyclerView.setVisibility(View.GONE);
                     } else {
-                        emptyStateLayout.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                        adapter.submitList(orders);
+                        if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.GONE);
+                        if (recyclerView != null) recyclerView.setVisibility(View.VISIBLE);
+                        if (adapter != null) adapter.submitList(orders);
                     }
                 });
             }
 
             @Override
             public void onError(@NonNull String message) {
+                if (isFinishing() || isDestroyed()) return;
                 runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    swipeRefreshLayout.setRefreshing(false);
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                    if (swipeRefreshLayout != null) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
                     Toast.makeText(OrderHistoryActivity.this, message, Toast.LENGTH_SHORT).show();
                 });
             }
         });
     }
+
+
+    private void onDownloadClick(GameDto game, Button downloadButton) {
+        if (game == null || downloadButton == null) return;
+        
+        String gameId = game.getId();
+        if (gameId == null || gameId.isEmpty()) {
+            Toast.makeText(this, "Invalid game", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Check storage permission for older Android versions
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, 
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                pendingDownloadGame = game;
+                pendingDownloadButton = downloadButton;
+                requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                return;
+            }
+        }
+        
+        startDownload(game, downloadButton);
+    }
+
+    private void startDownload(GameDto game, Button downloadButton) {
+        if (downloadHelper == null || game == null || downloadButton == null) return;
+        if (isFinishing() || isDestroyed()) return;
+        
+        String gameId = game.getId();
+        if (gameId == null || gameId.isEmpty()) {
+            Toast.makeText(this, "Invalid game ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String gameName = game.getName() != null ? game.getName() : "Game";
+        
+        downloadButton.setText(R.string.downloading);
+        downloadButton.setEnabled(false);
+        
+        Toast.makeText(this, "Starting download: " + gameName, Toast.LENGTH_SHORT).show();
+        
+        downloadHelper.downloadApk(gameId, gameName, new DownloadHelper.DownloadCallback() {
+            @Override
+            public void onProgress(int progress) {
+                if (isFinishing() || isDestroyed()) return;
+                runOnUiThread(() -> {
+                    if (downloadButton != null) {
+                        downloadButton.setText(getString(R.string.download_progress, progress));
+                    }
+                });
+            }
+
+            @Override
+            public void onComplete(File file) {
+                if (isFinishing() || isDestroyed()) return;
+                runOnUiThread(() -> {
+                    if (downloadButton != null) {
+                        downloadButton.setText(R.string.install);
+                        downloadButton.setEnabled(true);
+                        downloadButton.setOnClickListener(v -> {
+                            if (downloadHelper != null && file != null && file.exists()) {
+                                downloadHelper.installApk(file);
+                            }
+                        });
+                    }
+                    Toast.makeText(OrderHistoryActivity.this, R.string.download_complete, Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onError(String message) {
+                if (isFinishing() || isDestroyed()) return;
+                runOnUiThread(() -> {
+                    if (downloadButton != null) {
+                        downloadButton.setText(R.string.download);
+                        downloadButton.setEnabled(true);
+                    }
+                    Toast.makeText(OrderHistoryActivity.this, 
+                            getString(R.string.download_failed) + ": " + (message != null ? message : "Unknown error"), 
+                            Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
 
     // Inner Adapter class
     private class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
@@ -186,6 +320,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 }
             }
 
+
             private void addGameItem(OrderDto.OrderDetailDto detail) {
                 View gameView = LayoutInflater.from(itemView.getContext())
                         .inflate(R.layout.item_order_game, layoutGames, false);
@@ -194,6 +329,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 TextView textViewName = gameView.findViewById(R.id.textViewGameName);
                 TextView textViewKey = gameView.findViewById(R.id.textViewGameKey);
                 TextView textViewPrice = gameView.findViewById(R.id.textViewPrice);
+                Button buttonDownload = gameView.findViewById(R.id.buttonDownload);
 
                 GameDto game = detail.getGame();
                 if (game != null) {
@@ -205,8 +341,12 @@ public class OrderHistoryActivity extends AppCompatActivity {
                                 .placeholder(R.drawable.ic_videogame_asset_black_24dp)
                                 .into(imageView);
                     }
+                    
+                    // Setup download button
+                    buttonDownload.setOnClickListener(v -> onDownloadClick(game, buttonDownload));
                 } else {
                     textViewName.setText("Unknown Game");
+                    buttonDownload.setVisibility(View.GONE);
                 }
 
                 textViewPrice.setText(String.format(Locale.US, "$%.2f", detail.getValue()));

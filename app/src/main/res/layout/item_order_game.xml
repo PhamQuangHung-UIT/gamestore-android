@@ -4,9 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minHeight="80dp"
     android:background="@drawable/shape_rounded_16dp"
     android:orientation="horizontal"
     android:padding="12dp"
+    android:gravity="center_vertical"
     android:layout_marginBottom="8dp">
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -22,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -50,15 +53,29 @@
             android:visibility="gone"
             tools:text="XXXX-XXXX-XXXX"
             tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/textViewPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            tools:text="$19.99" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textViewPrice"
+    <Button
+        android:id="@+id/buttonDownload"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_gravity="center_vertical"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        tools:text="$19.99" />
+        android:minWidth="90dp"
+        android:paddingHorizontal="16dp"
+        android:text="@string/download"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/teal_200"
+        android:textSize="12sp"
+        app:cornerRadius="20dp" />
 </LinearLayout>

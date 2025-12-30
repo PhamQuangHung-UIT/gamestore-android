@@ -64,6 +64,7 @@ public class YourGamesFragment extends Fragment {
         updateLoginState();
     }
 
+
     private void initViews(View view) {
         loginRequiredLayout = view.findViewById(R.id.loginRequiredLayout);
         contentLayout = view.findViewById(R.id.contentLayout);
@@ -96,7 +97,6 @@ public class YourGamesFragment extends Fragment {
 
     private void updateLoginState() {
         boolean isLoggedIn = TokenManager.getInstance().isLoggedIn();
-        android.util.Log.d("YourGamesFragment", "updateLoginState - isLoggedIn: " + isLoggedIn);
         
         if (loginRequiredLayout != null) {
             loginRequiredLayout.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
@@ -106,12 +106,11 @@ public class YourGamesFragment extends Fragment {
         }
         
         if (isLoggedIn) {
-            loadLibraryAndWishlist();
+            loadProfileAndWishlist();
         }
     }
 
-    private void loadLibraryAndWishlist() {
-        // Use profile's ownedGameIds for faster check
+    private void loadProfileAndWishlist() {
         customerRepository.getProfile(new CustomerRepository.ProfileCallback() {
             @Override
             public void onSuccess(@NonNull CustomerProfileDto profile) {
@@ -120,25 +119,21 @@ public class YourGamesFragment extends Fragment {
                 if (ownedIds != null) {
                     ownedGameIds.addAll(ownedIds);
                 }
-                // Update adapter with owned IDs
                 if (adapter != null) {
                     adapter.setOwnedGameIds(ownedGameIds);
                 }
-                // Then load wishlist
                 loadWishlist();
             }
 
             @Override
             public void onError(@NonNull String message) {
-                // Still load wishlist even if profile fails
                 loadWishlist();
             }
         });
     }
 
+
     private void loadWishlist() {
-        android.util.Log.d("YourGamesFragment", "loadWishlist called");
-        
         if (progressBar != null && adapter.getItemCount() == 0) {
             progressBar.setVisibility(View.VISIBLE);
         }
@@ -146,8 +141,6 @@ public class YourGamesFragment extends Fragment {
         customerRepository.getWishlist(new CustomerRepository.WishlistCallback() {
             @Override
             public void onSuccess(@NonNull List<GameDto> games) {
-                android.util.Log.d("YourGamesFragment", "Wishlist loaded: " + games.size() + " games");
-                
                 if (getContext() == null) return;
                 
                 if (swipeRefreshLayout != null) {
@@ -169,8 +162,6 @@ public class YourGamesFragment extends Fragment {
 
             @Override
             public void onError(@NonNull String message) {
-                android.util.Log.e("YourGamesFragment", "Wishlist error: " + message);
-                
                 if (getContext() == null) return;
                 
                 if (swipeRefreshLayout != null) {

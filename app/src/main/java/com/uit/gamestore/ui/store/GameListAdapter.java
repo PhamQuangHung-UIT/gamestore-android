@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,7 +34,9 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
     private final Context context;
     private OnGameClickListener clickListener;
     private OnSaveClickListener saveClickListener;
+    private OnDownloadClickListener downloadClickListener;
     private java.util.Set<String> ownedGameIds = new java.util.HashSet<>();
+    private boolean showDownloadButton = false;
 
     public interface OnGameClickListener {
         void onGameClick(GameDto game);
@@ -41,6 +44,10 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
 
     public interface OnSaveClickListener {
         void onSaveClick(GameDto game);
+    }
+
+    public interface OnDownloadClickListener {
+        void onDownloadClick(GameDto game, Button downloadButton, ProgressBar progressBar);
     }
 
     private static final DiffUtil.ItemCallback<GameDto> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
@@ -71,6 +78,15 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         this.saveClickListener = listener;
     }
 
+    public void setOnDownloadClickListener(@Nullable OnDownloadClickListener listener) {
+        this.downloadClickListener = listener;
+    }
+
+    public void setShowDownloadButton(boolean show) {
+        this.showDownloadButton = show;
+        notifyDataSetChanged();
+    }
+
     public void setOwnedGameIds(java.util.Set<String> ownedIds) {
         this.ownedGameIds = ownedIds != null ? ownedIds : new java.util.HashSet<>();
         notifyDataSetChanged();
@@ -93,7 +109,7 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         if (game == null) return;
 
         boolean isOwned = ownedGameIds.contains(game.getId());
-        holder.bind(game, context, isOwned);
+        holder.bind(game, context, isOwned, showDownloadButton);
         
         // Set click listener on the whole item
         holder.itemView.setOnClickListener(v -> {
@@ -112,6 +128,17 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
                     if (saveClickListener != null) {
                         saveClickListener.onSaveClick(game);
                     }
+                });
+            }
+        }
+
+        // Set download button listener (for vertical items with owned games)
+        if (holder instanceof VerticalGameViewHolder && isOwned && showDownloadButton) {
+            VerticalGameViewHolder vHolder = (VerticalGameViewHolder) holder;
+            if (vHolder.buttonDownload != null && downloadClickListener != null) {
+                vHolder.buttonDownload.setOnClickListener(v -> {
+                    android.util.Log.d("GameListAdapter", "Download button clicked: " + game.getName());
+                    downloadClickListener.onDownloadClick(game, vHolder.buttonDownload, vHolder.progressBarDownload);
                 });
             }
         }
@@ -161,10 +188,14 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
         }
 
         public void bind(@NonNull GameDto game, @NonNull Context context) {
-            bind(game, context, false);
+            bind(game, context, false, false);
         }
 
         public void bind(@NonNull GameDto game, @NonNull Context context, boolean isOwned) {
+            bind(game, context, isOwned, false);
+        }
+
+        public void bind(@NonNull GameDto game, @NonNull Context context, boolean isOwned, boolean showDownload) {
             // Set game name
             String name = game.getName();
             labelGameName.setText(name != null ? name : "Unknown Game");
@@ -208,17 +239,24 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
                 imageViewMinimumAge.setVisibility(View.GONE);
             }
 
-            bindPrice(game, isOwned);
+            bindPrice(game, isOwned, showDownload);
         }
 
-        protected void bindPrice(@NonNull GameDto game, boolean isOwned) {
+        protected void bindPrice(@NonNull GameDto game, boolean isOwned, boolean showDownload) {
             if (buttonPurchase == null) return;
 
             if (isOwned) {
-                buttonPurchase.setText(R.string.owned);
-                buttonPurchase.setEnabled(false);
-                buttonPurchase.setAlpha(0.7f);
+                if (showDownload) {
+                    // Hide purchase button, show download button in subclass
+                    buttonPurchase.setVisibility(View.GONE);
+                } else {
+                    buttonPurchase.setVisibility(View.VISIBLE);
+                    buttonPurchase.setText(R.string.owned);
+                    buttonPurchase.setEnabled(false);
+                    buttonPurchase.setAlpha(0.7f);
+                }
             } else {
+                buttonPurchase.setVisibility(View.VISIBLE);
                 buttonPurchase.setEnabled(true);
                 buttonPurchase.setAlpha(1.0f);
                 double effectivePrice = game.getEffectivePrice();
@@ -230,8 +268,12 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
             }
         }
 
+        protected void bindPrice(@NonNull GameDto game, boolean isOwned) {
+            bindPrice(game, isOwned, false);
+        }
+
         protected void bindPrice(@NonNull GameDto game) {
-            bindPrice(game, false);
+            bindPrice(game, false, false);
         }
     }
 
@@ -249,12 +291,17 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
 
         @Override
         public void bind(@NonNull GameDto game, @NonNull Context context) {
-            bind(game, context, false);
+            bind(game, context, false, false);
         }
 
         @Override
         public void bind(@NonNull GameDto game, @NonNull Context context, boolean isOwned) {
-            super.bind(game, context, isOwned);
+            bind(game, context, isOwned, false);
+        }
+
+        @Override
+        public void bind(@NonNull GameDto game, @NonNull Context context, boolean isOwned, boolean showDownload) {
+            super.bind(game, context, isOwned, showDownload);
             loadBannerImage(game, context);
         }
 
@@ -275,8 +322,34 @@ public class GameListAdapter extends ListAdapter<GameDto, GameListAdapter.GameVi
     }
 
     public static class VerticalGameViewHolder extends GameViewHolder {
+        final Button buttonDownload;
+        final ProgressBar progressBarDownload;
+
         public VerticalGameViewHolder(@NonNull View itemView) {
             super(itemView);
+            buttonDownload = itemView.findViewById(R.id.button_download);
+            progressBarDownload = itemView.findViewById(R.id.progressBar_download);
+        }
+
+        @Override
+        public void bind(@NonNull GameDto game, @NonNull Context context, boolean isOwned, boolean showDownload) {
+            super.bind(game, context, isOwned, showDownload);
+            
+            // Handle download button visibility
+            if (buttonDownload != null) {
+                if (isOwned && showDownload) {
+                    buttonDownload.setVisibility(View.VISIBLE);
+                    buttonDownload.setText(R.string.download);
+                    buttonDownload.setEnabled(true);
+                } else {
+                    buttonDownload.setVisibility(View.GONE);
+                }
+            }
+            
+            // Hide progress bar initially
+            if (progressBarDownload != null) {
+                progressBarDownload.setVisibility(View.GONE);
+            }
         }
     }
 }

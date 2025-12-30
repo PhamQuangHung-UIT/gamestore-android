@@ -57,7 +57,7 @@
     <string name="original_price">Original: %s</string>
 
     <!-- Library -->
-    <string name="your_library">Your Library</string>
+    <string name="your_library">My Library</string>
     <string name="no_games_in_library">You haven\'t purchased any games yet</string>
     <string name="browse_store">Browse Store</string>
 
@@ -113,4 +113,13 @@
     <string name="reset">Reset</string>
     <string name="apply">Apply</string>
     <string name="no_results">No games found</string>
+    
+    <!-- Download -->
+    <string name="download">Download</string>
+    <string name="downloading">Downloading…</string>
+    <string name="download_complete">Download complete</string>
+    <string name="download_failed">Download failed</string>
+    <string name="install">Install</string>
+    <string name="open">Open</string>
+    <string name="download_progress">%d%%</string>
 </resources>
